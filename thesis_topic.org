@@ -1,0 +1,15 @@
+* Shape of Time Series
+
+** geometric comparison (allow for different lenght)
+Can I forecast a similar shape with
+
+What makes a si8milarity metric good or bad?
+
+** Similarity metrics
+- serach engine for time series
+- top 10 similar features
+
+** TODO Literature
+- time series similarity
+- time series retrieval
+- clustering time series
