@@ -3,8 +3,7 @@
 ** geometric comparison (allow for different lenght)
 Can I forecast a similar shape with
 
-What makes a si8milarity metric good or bad?
-
+What makes a similarity metric good or bad?
 ** Similarity metrics
 - serach engine for time series
 - top 10 similar features
@@ -13,3 +12,52 @@ What makes a si8milarity metric good or bad?
 - time series similarity
 - time series retrieval
 - clustering time series
+
+** Similarity
+cite:Zhang_2021 --> important paper (check references)
+traditional similarity-based methods consider local geometric properties of raw time series or global topological properties
+propose framework which considers local geometric features and global topological characteristics of time series data
+
+cite:Cleasby_2019 -> not really relevant -> biological information
+
+
+cite:Santos_2019 -> Pixelwise studies -> not sure what they do!
+
+cite:Zhang_2020 -> similarity measure TAOT based on optimal transport; interesting method to be tested
+- currently the time adaptivity is achieved distance between time steps -> Are there alternatives?
+  - method is confirmed via k-mediods check for effectiveness? How does that work?
+
+cite:Zhang_2021 --> mixes geometric and topological properties to compare series
+
+
+
+** Measures of Similarity
+*** geometric
+*** topological
+
+** Idea pool
+- time series analysis
+
+** Search Engine for time series
+- take metrics from ts *geometric* and *topological* and compute a similarity metric
+*** TODO measure performance cost of calculation
+*** TODO Apply to real-world scenario -> e.g. M-competition set
+*** Question: What can you do? Maybe take series with similar values (threshold?) and train model and look at forecast results?
+*** TODO  checkout UCR classification dataset
+
+** Question: How to prove that those series are actually similar? What is the control?
+*** Create synthetic data sets to compute how the metrics are different when one property is changed? E.g. what is the difference b/w sine and cosine?
+*** What if the amplitude is different? What if the periodicity is different?
+
+** Math concepts
+*** Phase Space
+- every parameter or degree of freedom is represented as an axis of multidimensional space
+- one-dimensional system is called phase line, two-dimensional system is called phase plane
+**** Core Idea
+For every possible state of the system or allowed combination of the values of the system's parameters, a point is included in the multidimensional space. The system is observed over time and the corresponding values for each dimension are traced as line (*phase space trajectory*) for this system. This can be a high-dimensional space.
+
+The phase space trajectory represents the set of states  compatible  with starting from one particular initial condition (wiki)
+- for TS this means to check from different starting points (maybe cross validation)
+**** Consequences
+- phase space as a whole represents all that a system can be and from the shape qualities of the system can be identified
+    
