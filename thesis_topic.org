@@ -1,5 +1,43 @@
 * Shape of Time Series
 
+** Topic
+Time Series Search Engine - With this thesis different methods are explored that can be utilized to create a time series search engine with faster retrieval times than using a DTW algorithm to compare the time series to each other.
+
+*** First approach
+- transform all time series to Fourier space via FFT
+- identify the top 3-5 most important frequencies based on power spectrum
+- build a band of frequencies that increases in range on a log scale -> lower frequencies are more important to be the same than higher frequencies
+- order frequencies based on their level of energy
+- compute proximity of series by comparing the overlap of common frequencies if frequencies overlap on the same position
+- compare proximity for hourly series based on DTW total cost function
+
+*** Issues so far
+- parallelization to allow reasonable run time for comparing each series with each other series in M4 (100k series)
+- spectral leakage (some frequencies seem to leak and therefore the same frequency range appears twice in the power spectrum) --> possibly apply some window-function (e.g. Hamming window)
+- Does same (or just similar frequency mean that the series looks similar)?
+- Does it matter whether the energy level is significantly different or not?
+- How to ensure that a single frequency really describes a time series? E.g. measure variance after reconstruction? What is a good threshold for confirming whether the frequency describes the series well?
+- Does time series decomposition improve the results? If so, how to integrate trends?
+
+*** Next activities
+- compute comparison for each series and compute distance for top 5 results per series
+- review Singular Spectral Decomposition as alternative to FFT
+
+** Activities so far
+*** create DTW computation to find closest time series
+- done for hourly M4 data set only
+- 414 time series ~ 15 hours of computation
+- not feasible for remaining series / not feasible for
+*** compute FFT for all time series in M4
+- compute FFT
+- create power spectrum
+- create log scaled frequency ranges to apply to the frequencies of each series
+- compute 4 most powerful frequencies of each series
+- compare frequency ranges for each series in M4
+*** Parallelization
+- find multiprocessing that allows for reasonable execution time for M4 dataset
+
+  
 ** geometric comparison (allow for different lenght)
 Can I forecast a similar shape with
 
