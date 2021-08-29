@@ -1,5 +1,4 @@
 * Shape of Time Series
-
 ** Topic
 Time Series Search Engine - With this thesis different methods are explored that can be utilized to create a time series search engine with faster retrieval times than using a DTW algorithm to compare the time series to each other.
 
@@ -20,8 +19,10 @@ Time Series Search Engine - With this thesis different methods are explored that
 - Does time series decomposition improve the results? If so, how to integrate trends?
 
 *** Next activities
+- check with fft retransformation how much variance is removed to indicate whether this is meaningful approximation?
 - compute comparison for each series and compute distance for top 5 results per series
 - review Singular Spectral Decomposition as alternative to FFT
+- check if comparison on h_0 make sense in terms of absolute values?
 
 ** Activities so far
 *** create DTW computation to find closest time series

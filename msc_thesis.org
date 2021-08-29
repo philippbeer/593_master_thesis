@@ -1,0 +1,64 @@
+* Thesis: Time Series Search Engine
+** Purpose
+The purpose of this thesis is to explore the possibility of creating a time series series search engine.
+
+** Introduction
+- refer to previous work on measures of similarity and outcome
+- measure of similarity required
+- challenges with time series (domains, granularity, length, outliers)
+- area of signal processing interesting methods
+*** M-Competition
+Makridakis competitions relevant research in the field of finding accurate forecasts, predicition intervals and more recently relevant third party data
+- general outcome that ML-methods don't achieve the same level of accuracy and predicition intervals as statistical methods despite much higher computation complexity
+- idea to find similar series that can help compare the series to similar ones (ideally unrestricted of the domain)
+- why M4 and not M5 (key challenge of ts with different length - more real world scenario)
+
+*** Applications
+- Finance - stock market analysis
+- bio statistics
+  - brain wave analysis - finding similar patterns in other fields
+  - comparision of EEG, ECG, etc data
+- search engine extension to curate data sets for training ML algorithms (what others series exist which are similar to the ones I care about)
+
+** Exisiting work
+*** Measuring similarity
+- Euclidean Distance
+- Dynamic Time Warping
+*** Challenges
+- length of series
+- trend
+- seasonality
+- computational complexity
+*** Signal Processing
+- Fourier Transform
+** Approach in this research
+***  Preprocessing
+- M4 data wide format vs. long format
+*** Parallelization
+- computation times
+- scalability
+- Samples for results only (stratification vs. non-stratification)
+**** Threads vs. Processes
+_
+*** Technology
+R vs. Python vs. Mathematica, Matlab
+*** 
+- load
+- transform to FFT vector space
+- compare most important frequencies
+- compare candidates
+- select winner (which criteria)
+** Challenges
+- How many frequencies to compare?
+- priorities of frequencies (power spectrum)
+- different length of time series (leading to different  frequencies) - ranges solved with logs
+** Implementation
+- algorithm
+** Results
+- Distance metrics
+- computational complexity
+** Conclusion
+*** Successes
+*** Failures
+*** Flaws
+- final computation
