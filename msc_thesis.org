@@ -1,8 +1,26 @@
+#+startup: Num
+#+TITLE: Time Series: Defining a Search Engine
+#+AUTHOR: Philipp Beer
+#+EMAIL: beer.p@live.unic.ac.cy
+#+OPTIONS: toc:nil
+#+OPTIONS: num:1
+#+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
+#+LATEX_CLASS_OPTIONS: [hidelinks,11pt]
+#+PROPERTY: header-args :exports none :tangle "~Dropbox/bibliography/593_thesis.bib"
+#+LATEX_HEADER: \usepackage[natbib=true,citestyle=ieee]{biblatex} \DeclareFieldFormat{apacase}{#1} \addbibresource{~/Dropbox/bibliography/593_thesis.bib}
+
 * Thesis: Time Series Search Engine
 ** Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
 
 ** Introduction
+*** Time Series Defintion
+Time series is often described as "anything that is observed sequentially over time" which usually are observed at regular intervals of time cite:hyndman2014forecasting. They can be described as collection of observations that are considered together in chronological order rather than as individual values or a multiset of values. Their representation can be described as ordered pairs:
+$S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestamp or any other element that defines order. $v_1$ represents the observation at that position in the time series.
+
+*** What are they used for
+Time series are utilized to analyze and gain insight from historic events/patterns with respect to the observational variable(s) and their interactions. A second area of application is forecasting. Here time series are utilized to predict the observations that occur in future under the assumption that the historic information can provide insight into the behavior of the observed variables.
+
 - refer to previous work on measures of similarity and outcome
 - measure of similarity required
 - challenges with time series (domains, granularity, length, outliers)
@@ -24,13 +42,19 @@ Makridakis competitions relevant research in the field of finding accurate forec
 *** Measuring similarity
 - Euclidean Distance
 - Dynamic Time Warping
-*** Challenges
+**** Properties of distance measures
+*** Why is expressing similarity difficult
+*** Challenges 
 - length of series
 - trend
 - seasonality
 - computational complexity
 *** Signal Processing
 - Fourier Transform
+*** What is usually not done
+- comparison of different granularities (makes sense but if the properties are similar and it can help as training task why not?)
+- wouldn't even require that series are measured at the same interval. But of course if you want to use one to forecast the other one some rules of forecasting are required.
+-   
 ** Approach in this research
 ***  Preprocessing
 - M4 data wide format vs. long format
@@ -39,7 +63,8 @@ Makridakis competitions relevant research in the field of finding accurate forec
 - scalability
 - Samples for results only (stratification vs. non-stratification)
 **** Threads vs. Processes
-_
+*** How does it differ from other approaches
+- How is different from SAX -> not symbolic representation but aggregated representation of vectorized properties
 *** Technology
 R vs. Python vs. Mathematica, Matlab
 *** 
@@ -62,3 +87,5 @@ R vs. Python vs. Mathematica, Matlab
 *** Failures
 *** Flaws
 - final computation
+** References
+#+LATEX: \printbibliography[heading=none]
