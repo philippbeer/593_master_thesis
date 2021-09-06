@@ -5,9 +5,10 @@
 #+OPTIONS: toc:nil
 #+OPTIONS: num:1
 #+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
+#+LATEX_HEADER: \usepackage[font=small, labelfont=bf, margin=1cm]{caption}
 #+LATEX_CLASS_OPTIONS: [hidelinks,11pt]
 #+PROPERTY: header-args :exports none :tangle "~Dropbox/bibliography/593_thesis.bib"
-#+LATEX_HEADER: \usepackage[natbib=true,citestyle=ieee]{biblatex} \DeclareFieldFormat{apacase}{#1} \addbibresource{~/Dropbox/bibliography/593_thesis.bib}
+#+LATEX_HEADER: \usepackage[natbib=true,citestyle=ieee, maxcitenames=2, mincitenames=1]{biblatex} \DeclareFieldFormat{apacase}{#1} \addbibresource{~/Dropbox/bibliography/593_thesis.bib}
 
 * Thesis: Time Series Search Engine
 ** Purpose
@@ -62,24 +63,69 @@ The focus for this work is to generate a method that allows to build a time seri
 ** Exisiting work
 *** Measuring similarity
 # integrate section 3.3 in for similarity measures
-In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. 
-- Euclidean Distance
-- Dynamic Time Warping
+In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. citeauthor:Wang_2012 reviewed time series measures and categorized the similarity measures into 4 categories: (1) lock-step measures, (2) elastic measures, (3) threshold-based measures, and (4) pattern-based measures.\\
+
+*Lockstep-measures* include the L_p-norms (Manhatten and Euclidean Distance) as well as Dissimilarity Measure (DISSIM). *Elastic measures* include metrics like Dynamic Time Warping (DTW) and edit distance based measures like Longest Common Subsequence (LCSS), Edit Sequence on Real Sequence (EDR), Swale and Edit Distance with Real Penalty. An example for *threshold-based measures* are threshold query based similarity search (TQuEST). And Spatial Assembling Distance (SpADe) is an example for pattern-based measures.
+
+**** Euclidean Distance
+Euclidean Distance is the most widely used distance metric in the research of time series. (add list of papers here)
+
+- explain advantages
+
+- mention shortcomings
+  - same length period
+
+  - handling of outliers and noise
+
+  - handling of stretching of series
+
+  - computational complexity
+
+
+**** Dynamic Time Warping
+- invented by cite:Berndt94usingdynamic in 1994
+- warp series by computing the distance from one point to all other points in the other series and define a warped path that minimizes the distance
+  #+BEGIN_EXPORT latex
+  \begin{equation}
+  DTW(S_a,S_b) = min\{\sqrt{\sum_{k=1}^K w_k}/K
+  \end{equation}
+  #+END_EXPORT
+- advantages: handles distortions, does not require same length ts
+- disadvantages: outliers may create a false impression of similarity, computaional complexity of $O(n^2)$ makes utilization for very long time series impractical and comparison with large sets of time series is also very time intensive
+
+**** Similarity through decomposition
+- introduce time series decomposition (reference in cite:hyndman2014forecasting)
+- trend and seasonality (mention assumptions about period)
+*** Time series representation
+- Principal Component Analysis
 - SAX
-**** Properties of distance measures
-*** Why is expressing similarity difficult
-*** Challenges 
+- Discrete Fourier Transform (DFT) and Discrete Wavelet Transform (DWT)
+  - mention origin in signal processing and ubiquitous use in engineering (image and audio compression)
+
+*** Challenges when building a time series
 - length of series
 - trend
 - seasonality
-- computational complexity
-*** Signal Processing
-- Fourier Transform
-*** What is usually not done
-- comparison of different granularities (makes sense but if the properties are similar and it can help as training task why not?)
-- wouldn't even require that series are measured at the same interval. But of course if you want to use one to forecast the other one some rules of forecasting are required.
--   
+- computational complexity -> issue because of data size
+- granularity or sampling rates
+- noise
+- data quality
+- similarity is task dependent (level)
+- usual need for preprocessing the time series data (denoising, detrending, amplitude scaling) -> any pre-processing does modify the series
+
 ** Approach in this research
+*** Main contribution of the thesis
+- transformation into Fourier-space
+- transfer frequencies into frequency range band with increasing range width (using log scale)
+- computation of frequency energy levels (sort and keep top 5) -> ask Prof. how to name this parameter
+- conversion of ordered frequencies into frequency range band
+- for each series to compare -> compare whether the frequency matches on the ordered positions -> provide exponential value per position -> match on more powerful frequencies is valued higher
+*** additional computations
+- utilization of FFT utilizes only frequency space (future work should consider comparison of energy levels per frequency)
+- additional simple statistics computed (mean, std, quantiles)
+- ts decomposition for trend estimation (requires parameter for period) -> then best line fit for slope of the time series
+- computation of deltas for each series to search with statistics and slope of all other time series (review computational complexlity)
+- ranking of matching series based highest frequency range match and ONE statistic
 ***  Preprocessing
 - M4 data wide format vs. long format
 *** Parallelization
@@ -87,9 +133,8 @@ In order to be able to describe the closeness of time series or multiple time se
 - scalability
 - Samples for results only (stratification vs. non-stratification)
 **** Threads vs. Processes
-*** How does it differ from other approaches
-- How is different from SAX -> not symbolic representation but aggregated representation of vectorized properties
-*** Technology
+
+*** Technology (check with Prof. if required)
 R vs. Python vs. Mathematica, Matlab
 *** 
 - load
