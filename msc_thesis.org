@@ -18,30 +18,54 @@ The purpose of this thesis is to explore the possibility of creating a time seri
 Time series is often described as "anything that is observed sequentially over time" which usually are observed at regular intervals of time cite:hyndman2014forecasting. They can be described as collection of observations that are considered together in chronological order rather than as individual values or a multiset of values. Their representation can be described as ordered pairs:
 $S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestamp or any other element that defines order. $v_1$ represents the observation at that position in the time series.
 
+Time series share the same challenges as other high dimensional data in that it quickly requires high computational power to process them and they suffer from the "curse of dimensionality" cite:Tang_2019.
+
+*** Applications
+Time series are encountered everywhere. Any metric that is captured over time can utilized as time series. Granularity can be used as descriptor for the sampling rate of a series or more general how often measurements for a particular metric are taken. This granularity has a tendency to increase as well. As example consumer electronics that capture health and fitness data can mentioned. Or sensors which are utilized in the automotive industry or heavy machinery where they are employed to capture information for predictive maintenance applictions.
+
+In the financial industry time series are a very fundamental component of decision making, like the development of stock prices over time or financial metrics of interest. The same is true for macro economic information or metrics concerning social structures in society, etc.
+
+In the medical field time series are also ubiquitous. Whether they relate to patient date like blood pressure. The bio statistics field utilizes electrographical data like electrocardiography, electroencephalography and many others. In more aggregate medical analysis like toxicology analysis of drug treatments for vaccine approvals they are utilized and in many forms of risk management, for example, population level obesity levels.
+
+Time series data is paramount to a wide variety of areas, relating to many different fields.
+
 *** What are they used for
 Time series are utilized to analyze and gain insight from historic events/patterns with respect to the observational variable(s) and their interactions. A second area of application is forecasting. Here time series are utilized to predict the observations that occur in future under the assumption that the historic information can provide insight into the behavior of the observed variables.
 
+*** TODO to be integrated
 - refer to previous work on measures of similarity and outcome
 - measure of similarity required
 - challenges with time series (domains, granularity, length, outliers)
 - area of signal processing interesting methods
+
+
 *** M-Competition
-Makridakis competitions relevant research in the field of finding accurate forecasts, predicition intervals and more recently relevant third party data
-- general outcome that ML-methods don't achieve the same level of accuracy and predicition intervals as statistical methods despite much higher computation complexity
-- idea to find similar series that can help compare the series to similar ones (ideally unrestricted of the domain)
-- why M4 and not M5 (key challenge of ts with different length - more real world scenario)
+The research in time series has been numerous and focused on various properties of them as well as finding methods to accurately predict them. Aside of forecasting ell researched areas are measures of similarity and retrieval of time series.
 
-*** Applications
-- Finance - stock market analysis
-- bio statistics
-  - brain wave analysis - finding similar patterns in other fields
-  - comparision of EEG, ECG, etc data
-- search engine extension to curate data sets for training ML algorithms (what others series exist which are similar to the ones I care about)
+**** Forecasting
+In the arena of forecasting the M-competition organized by Prof. Makridakis played a big role in the development of forecasting methods shortly after their inception in 1979.
+# add paper and verify dates
+One of the aspects that has been correct up until the 5th installment of the M-competition is that statistical methods in forecasting have outperformed more complex machine learning methods. So learning algorithms did not benefit sufficiently from learning from multiple series to generate more accurate point predictions and prediction intervals compared to the statistics-based alternatives.
 
+One interesting question in this area is whether clustering of time series that have similar properties and training algorithms per cluster of "similar" series can help simplify the learning process for machine learning methods and in consequence improve their performance in future competitions.
+
+# reference to relevant chapter
+However, expressing similarity for time series is a challenging questions with respect to which metrics to utilize, computational complexity as well as limiting assumptions that need to be made for time series.
+
+*** Focus
+The focus for this work is to generate a method that allows to build a time series search engine that can:
+- find similar time series in a database of available datasets
+- be sufficiently generic to be useful for practical applications
+- and rely on algorithms with sufficiently low computational complexity so that search results can retrieved quickly
+
+  
 ** Exisiting work
 *** Measuring similarity
+# integrate section 3.3 in for similarity measures
+In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. 
 - Euclidean Distance
 - Dynamic Time Warping
+- SAX
 **** Properties of distance measures
 *** Why is expressing similarity difficult
 *** Challenges 
