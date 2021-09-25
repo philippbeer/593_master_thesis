@@ -100,3 +100,7 @@ The phase space trajectory represents the set of states  compatible  with starti
 **** Consequences
 - phase space as a whole represents all that a system can be and from the shape qualities of the system can be identified
     
+
+** Thesis Defense
+45 minutes presentation
+3 professors (see if Makridakis could be added)
