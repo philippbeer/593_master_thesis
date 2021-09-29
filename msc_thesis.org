@@ -3,7 +3,7 @@
 #+AUTHOR: Philipp Beer
 #+EMAIL: beer.p@live.unic.ac.cy
 #+OPTIONS: toc:nil
-#+OPTIONS: num:1
+#+OPTIONS: num:3
 #+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
 #+LATEX_HEADER: \usepackage[font=small, labelfont=bf, margin=1cm]{caption}
 #+LATEX_CLASS_OPTIONS: [hidelinks,11pt]
@@ -21,24 +21,25 @@ $S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestam
 
 Time series are utilized to analyze and gain insight from historic events/patterns with respect to the observational variable(s) and their interactions. A second area of application is forecasting. Here time series are utilized to predict the observations that occur in future under the assumption that the historic information can provide insight into the behavior of the observed variables.
 
-citeauthor:Fu_2011 in their work cite:Fu_2011 categorized time series research into (1) representation, (2) indexing, (3) similarity measure, (4) segmentation, (5) visualization and (6) mining. Research in these different fields started taking off in the second half of the 20^th century. For example in cite:_str_m_1969 the authors worked on questions of representation via sampling the sampling of time series in citeyear:_str_m_1969. All these different research areas always have to deal with the challenges that inhibit time series data. Time series data incorporates the similar obstacles as high dimensional data, namely the "curse of dimensionality" cite:Tang_2019 and requiring large computational efforts in order to generate insights.
+citeauthor:Fu_2011 in their work cite:Fu_2011 categorized time series research into (1) representation, (2) indexing, (3) similarity measure, (4) segmentation, (5) visualization and (6) mining. Research in these different fields started taking off in the second half of the 20^th century. For example in cite:_str_m_1969 the authors worked on questions of representation via sampling the sampling of time series in citeyear:_str_m_1969. All these different research areas always have to deal with the challenges that inhibit time series data. Generally datasets in this domain are large. Through this time series data incorporates the similar obstacles as high dimensional data, namely the "curse of dimensionality" cite:Tang_2019 and requiring large computational efforts in order to generate insights. And as will be discussed in [[sec:apps]] there are applications fields where vast amounts of time series are generated and a comparison between them is required.
+
+In this thesis we will focus on creating a algorithm allowing the fast and meaningful comparison of an input time series or template against a vast array time series. Within the research many different areas and approaches have been attempted (at list here). However, there is a tendency to apply the simplest methods possible to achieve the desired results. For time series those are mainly Euclidean Distance and Dynamic Time Warping. While those methods will be explored in section [[sec:exis_work]] it can be said that those methods are simple, easy to understand and produce mostly reliable results in their respective application domains. Good performance is not their strong suit. Therefore, our approach is targeted to achieving comparable capability in identifing similar series, while achieving it with a significant reduction in computational complexity.
 
 *** Applications
-Time series are encountered everywhere. Any metric that is captured over time can utilized as time series. Granularity can be used as descriptor for the sampling rate of a series or more general how often measurements for a particular metric are taken. This granularity has a tendency to increase as well. As example consumer electronics that capture health and fitness data can mentioned. Or sensors which are utilized in the automotive industry or heavy machinery where they are employed to capture information for predictive maintenance applictions.
+<<sec:apps>>
+Time series are encountered everywhere. Any metric that is captured over time can utilized as time series. Granularity can be used as descriptor for the sampling rate of a series or more general how often measurements for a particular metric are taken. This granularity has a tendency to increase as well. As example consumer electronics that capture health and fitness data can mentioned. Or sensors which are utilized in the automotive industry or heavy machinery where they are employed to capture information for predictive maintenance applictions.\\
 
-In the financial industry time series are a very fundamental component of decision making, like the development of stock prices over time or financial metrics of interest. The same is true for macro economic information or metrics concerning social structures in society, etc.
+In the financial industry time series are a very fundamental component of decision making, like the development of stock prices over time or financial metrics of interest. The same is true for macro economic information or metrics concerning social structures in society, etc.\\
 
-In the medical field time series are also ubiquitous. Whether they relate to patient date like blood pressure. The bio statistics field utilizes electrographical data like electrocardiography, electroencephalography and many others. In more aggregate medical analysis like toxicology analysis of drug treatments for vaccine approvals they are utilized and in many forms of risk management, for example, population level obesity levels.
+In the medical field time series are also ubiquitous. Whether they relate to patient date like blood pressure. The bio statistics field utilizes electrographical data like electrocardiography, electroencephalography and many others. In more aggregate medical analysis like toxicology analysis of drug treatments for vaccine approvals they are utilized and in many forms of risk management, for example, population level obesity levels.\\
 
 In engineering fields the utilization is often times similar to the above but it also require that information that is captured in time series is transferred between locations in an efficient manner. For example voice calls are required to be transferred between the participants in a fast manner and with minimized levels of noise in the data. Another interesting industrial example in the biomedical technology field is Neuralink which aims to implement a brain-machine-interface (BMI) utilizing mobile hardware like smartphones as the basis for its computation. Here a large of amount of time series data is generated which requires quick processing to generate real-time information. citeauthor:Musk_2019 describes a recording system with 3072 electrodes generating time series data cite:Musk_2019 that is used to capture the brain information and visualized in real-time cite:Siegle_2017.
 
 Time series data is paramount to a wide variety of areas, relating to many different fields. Looking at the trajectorty it seems likely that going forward more time series data on a higher granularity will be generated. This in turn increases the need to be able process, analyze, compare and respond to the data with methods that are faster than today's standard options.
 
-*** Focus
-In this work we focus on allowing the comparison of time series generated from different processes with different underlying properties and introduce a new measure of similarity. Our method does not require assumptions on the utilized time series and requires significantly less computaional resources for the execution of the comparison.
 
-*** Organization of this theis
-The rest of this thesis is organized as follows.
+*** Organization of this thesis
+The rest of this thesis is organized as follows:
 
 *** TODO to be integrated
 - refer to previous work on measures of similarity and outcome
@@ -50,19 +51,31 @@ The rest of this thesis is organized as follows.
 
   
 ** Exisiting work
+<<sec:exis_work>>
+For our task of enabling a fast comparison between time series mainly two areas of research are relevant: (1) measures of similarity, and (2) time series representation. Similarity is a metric of central importance in many data mining and machine learning activities whether the studied objects are time series or not. They are required for clustering and classification activities. In our case it expresses either absolute or relative similarity or dissimilarity between time series. For our use case it can help us rank the a list of time series in their proximity to the time series currently under review.
 
-Time series share the same challenges as other high dimensional data in that it quickly requires high computational power to process them and they suffer from the "curse of dimensionality" cite:Tang_2019.
+Representation of time series concerns itself with the optimal combination of reduction of the data dimensionality but adequate capture of its particular properties. With these methods feats like minimizing noise, managing outliers. According to citeauthor:Li_2019 the following methods are common methods for this task: (1) Discrete Fourier Transformation (DFT), (2) Singular Value Decomposition (SVD), (3) Discrete Wavelet Transformation (DWT), (4) Piecewise Aggregate Approximation (PAA), (5) Adaptive Piecewise Constant Approximation (APCA), (6) Chebyshev polynomials (CHEB), (7) Symbolic Aggregate approXimation, and others.
+
+# find related work
+Related work addressing the idea of time series search engine mainly focus on the system architecture and the data processing and pipelining aspect of this such an architecture.
+cite:Zhang_2012
+
+Other papers address domain specific questions like the introduction of a "Time-series Subimage Search Engine for archived astronomical data" cite:Kang_2021.
+
+# check if representation should be introduced before measures of similarity
 
 *** Measuring similarity
-# integrate section 3.3 in for similarity measures
-In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. citeauthor:Wang_2012 reviewed time series measures and categorized the similarity measures into 4 categories: (1) lock-step measures, (2) elastic measures, (3) threshold-based measures, and (4) pattern-based measures.\\
+In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. citeauthor:Wang_2012 reviewed time series measures and categorized the similarity measures into 4 categories: (1) lock-step measures, (2) elastic measures, (3) threshold-based measures, and (4) pattern-based measures. citeauthor:Zhang_2020 classify similarity measures in the categories: (1) time-rigid methods (Euclidean Distance), (2) time-flexible measures (dynamic time-warping), (3) feature-based measures (Fourier coefficents), and (4) model-based methods (autoregression and moving averarge model) cite:Zhang_2020.
 
-*Lockstep-measures* include the L_p-norms (Manhatten and Euclidean Distance) as well as Dissimilarity Measure (DISSIM). *Elastic measures* include metrics like Dynamic Time Warping (DTW) and edit distance based measures like Longest Common Subsequence (LCSS), Edit Sequence on Real Sequence (EDR), Swale and Edit Distance with Real Penalty. An example for *threshold-based measures* are threshold query based similarity search (TQuEST). And Spatial Assembling Distance (SpADe) is an example for pattern-based measures.
+*Lock-step measures* include the L_p-norms (Manhatten and Euclidean Distance) as well as Dissimilarity Measure (DISSIM). *Elastic measures* include metrics like Dynamic Time Warping (DTW) and edit distance based measures like Longest Common Subsequence (LCSS), Edit Sequence on Real Sequence (EDR), Swale and Edit Distance with Real Penalty. An example for *threshold-based measures* are threshold query based similarity search (TQuEST). And Spatial Assembling Distance (SpADe) is an example for pattern-based measures.
+
+A more flexible category are the *elastic measures*. Their key advantage is the fact that comparison is applied on a one-to-many-basis allowing the comparison of regions from one series to regions of the other time series as well as comparing the all the points of one series to all the points of the other series.
 
 **** Euclidean Distance
 Euclidean Distance is the most widely used distance metric in the research of time series. (add list of papers here)
 
 - explain advantages
+  - linear complexity
 
 - mention shortcomings
   - same length period
@@ -85,6 +98,7 @@ Euclidean Distance is the most widely used distance metric in the research of ti
   
 - advantages: handles distortions, does not require same length ts
 - disadvantages: outliers may create a false impression of similarity, computaional complexity of $O(n^2)$ makes utilization for very long time series impractical and comparison with large sets of time series is also very time intensive
+- pathological matchings
 
 **** Similarity through decomposition
 - introduce time series decomposition (reference in cite:hyndman2014forecasting)
