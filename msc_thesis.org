@@ -65,23 +65,20 @@ In order to be able to describe the closeness of time series or multiple time se
 
 A flexible category are the *elastic measures*. Their key advantage is the fact that comparison is applied on a one-to-many-basis allowing the comparison of regions from one series to regions of the other time series as well as comparing the all the points of one series to all the points of the other series.
 
-**** Euclidean Distance
-Euclidean Distance is the most widely used distance metric in the research of time series. (add list of papers here)
+*** Euclidean Distance
+Euclidean Distance is the most widely used distance metric in the research of time series. It is either used as a metric on its on or a as metric used used inside other methods to compute distances, for example, computation of distance of subsections of the data (cite:Faloutsos_1994) or to compute the distance between various points of two time series (see section [[sec:dtw]]). Having two time  series $S = \{s_1, s_2, \dots, s_n\}$ and $Q = \{q_1, q_2, \dots, q_n \}$ both of length $n$ the Euclidean distance can be computed as:
+#+BEGIN_EXPORT latex
+\begin{equation}
+D(S,Q) = \sqrt{\sum_{i=1}^{n}{(S_i,Q_i)^2}}
+\end{equation}
+#+END_EXPORT
 
-- explain advantages
-  - linear complexity
+It is a measure that is easy to compute and comprehend and gives intuitive input for the distance of two time series. From the standpoint of computational complexity the algorithm is applicable also to larger datasets with $\mathcal{O}(n)$. Its simplicity also creates some limitations. For example, to compute the euclidean distance between two series their length needs to be the same. Furthermore, it can be easily impacted in its results by the presence of outliers or increased levels of noise. It is not elastic with respect to the warping of information between two series in which effects that could indicate similarity happen even at slightly disparate steps.\\
 
-- mention shortcomings
-  - same length period
+Despite its shortcomings it is a prominent metric and widely used for distance calculations for short comings. Some of its limitations are addressed by more sophisticated metrics that utilize its computation as component.
 
-  - handling of outliers and noise
-
-  - handling of stretching of series
-
-  - computational complexity
-
-
-**** Dynamic Time Warping
+*** Dynamic Time Warping
+<<sec:dtw>>
 citeauthor:Berndt94usingdynamic introduced Dynamic Time Warping in citeyear:Berndt94usingdynamic finding the minimal alignment between two time series computed through a cost matrix and identifying the minimized path through the matrix starting from the final elements of each time series. This warps the points in time between the different series as shown in figure [[img_dtw_example]].
 
 #+CAPTION: Dynamic Time Warping - M4 Example: Y5683 and Y5376
