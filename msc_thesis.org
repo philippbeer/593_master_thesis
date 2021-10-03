@@ -7,6 +7,7 @@
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
 #+LATEX_HEADER: \usepackage[font=small, labelfont=bf, margin=1cm]{caption}
+#+LATEX_HEADER: \usepackage{bm}
 #+LATEX_CLASS_OPTIONS: [hidelinks,11pt]
 #+PROPERTY: header-args :exports none :tangle "./bibliography/593_thesis.bib"
 #+LATEX_HEADER: \usepackage[natbib=true,citestyle=ieee, maxcitenames=2, mincitenames=1]{biblatex} \DeclareFieldFormat{apacase}{#1} \addbibresource{./bibliography/593_thesis.bib}
@@ -65,14 +66,29 @@ The other research area of interest for our task is time series representation. 
 
 According to citeauthor:Li_2019 the following methods are common methods for this task: (1) Discrete Fourier Transformation (DFT), (2) Singular Value Decomposition (SVD), (3) Discrete Wavelet Transformation (DWT), (4) Piecewise Aggregate Approximation (PAA), (5) Adaptive Piecewise Constant Approximation (APCA), (6) Chebyshev polynomials (CHEB), (7) Symbolic Aggregate approXimation, and others cite:Li_2019. In their paper, citeauthor:Pang_Liu_Peng_Peng_2018 mention (1) Singular Value Decomposition (SVD), (2) Frequency-Domain transformation, (3) Piecewise Linear Representation (PLR), (4) model-based method, and (5) symbolic representation.
 
-Singular Value Decomposition is a fundamental matrix factorization technique with a plethora of applications and use cases. It's value comes from the capability of generating low rank approximations of data matrices that allow to represent the matrix values via the unitary matrices.
+*** Dimensionality Reduction related to Singular Value Decomposition
+Singular Value Decomposition is a fundamental matrix factorization technique with a plethora of applications and use cases. It's value comes from the capability of generating low rank approximations of data matrices that allow to represent the matrix values via the unitary matrices $\bm{U} \in \mathbb{C}^{n \times n}$ and $\bm{V} \in \mathbb{C}^{m \times m}$. The columns in in $\bm{U}$ and  $\bm{V}$ are orthonormal. The remaining matrix $\bm{\Sigma} \in \mathbb{R}^{n \times m}$, is a diagonal matrix with non-negative entries.
 
-- Principal Component Analysis
-- SAX
-- Discrete Fourier Transform (DFT) and Discrete Wavelet Transform (DWT)
-  - mention origin in signal processing and ubiquitous use in engineering (image and audio compression)
-** Similarity metrics
+The power of the SVD is its ability to provide a low-dimensional approximation to high-dimensional data cite:brunton2019data. High dimensional data is often determined by a few dominant patterns which can be described by a low-dimensional attractor. Therefore, a prime application for the SVD is dimensionality reduction. It is complementary to the Fast Fourier Transform (FFT) which lays at the core of this work. citeauthor:brunton2019data describe it as the generalization of the FFT.
 
+Principal Component Analysis (PCA) is a very common application of the SVD. It was developed by citeauthor:Pearson01 in citeyear:Pearson01. The main idea of PCA is to apply the SVD to a dataset centered around zero and subsequently computing the covariance of the centered dataset. Through the computation of the eigenvalues and their identifying the largest values the most important principal components are identified. Those are responsible for the largest variance in the dataset. And similar to the SVD their ranking and subsequent filtering can be used to focus on the most important components that allow to recreate majority of the of the variance in the dataset.
+
+The Fast Fourier Transform (FFT) is based upon the Fourier Transform introduced by Joseph Fourier in early 19^th century to analyze and analytically represent heat transfer in solid objects cite:fourier1822théorie. This transform is a fundamental component of modern computing and science in general. It has transformed how technology can be used in the in 20^th century in areas such as image and audio compression and transfer. The concept will be introduced in more detail in section [[sec:fft]]. Its core idea is to represent the data to be transformed as the coefficients of a basis of sine and cosine eigenfunctions. It is similar to the principles of the SVD with the notable difference that the basis are an infinite sum of sine and cosine functions. The ability to reduce to the transformed data to few key components is the same as in SVD and PCA.
+
+*** Symbolic Aggregate approXimation
+A dimensionality reduction technique that does not built on SVD and is geared directly towards time series is the Symbolic Aggregate approXimation (SAX) algorithm. Its core idea is to transform a time series into a set of strings via piecewise aggegrate approximation (PAA) and a conversion of the results via a lookup table. Starting with PAA the reduction of a time series $T$ of length $n$ in vector $\bar{S} = \bar{s_1}, \bar{s_2}, \dots, \bar{s_w}$ of length $w$ where $w < n$, can be achieved through the following computation:
+#+BEGIN_EXPORT latex
+\begin{equation}
+\bar{s_i} = \frac{w}{n} \sum_{j=\frac{n}{w}(i-1)+1}^{\frac{n}{w}i} s_j
+\end{equation}
+#+END_EXPORT
+
+#+CAPTION: Piecewise Aggregate Approximation - M4 example: M31220 (window size - 6)
+#+NAME: img_paa
+[[./img/paa_example.png]]
+
+This simply computes the mean of each of sub sequences determined through parameter $w$. An example from the M4 dataset can be seen in figure [[img_paa]]. For its application in SAX the time series are standardized or mean normalized, so that the comparison happens on the same amplitude. From this representation the data is further transformed to obtain a discrete representation. Due to the Gaussian distribution of the standardized data the transformed symbols are equiprobable. From this 
+** Relevant Concepts
 
 *** Euclidean Distance
 <<sec:ed>>
@@ -138,6 +154,9 @@ Therefore in practice, Dynamic Time Warping is not a method suitable for compari
 **** Similarity through decomposition
 - introduce time series decomposition (reference in cite:hyndman2014forecasting)
 - trend and seasonality (mention assumptions about period)
+*** Fast Fourier Transform
+<<sec:fft>>
+fast fourier transform
 ** Time series representation
 
 
