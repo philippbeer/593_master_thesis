@@ -4,6 +4,7 @@
 #+EMAIL: beer.p@live.unic.ac.cy
 #+OPTIONS: toc:nil
 #+OPTIONS: num:3
+#+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
 #+LATEX_HEADER: \usepackage[font=small, labelfont=bf, margin=1cm]{caption}
 #+LATEX_CLASS_OPTIONS: [hidelinks,11pt]
@@ -50,22 +51,31 @@ The rest of this thesis is organized as follows:
 
 
   
-** Existing work
+** Related work
 <<sec:exis_work>>
 Related work addressing the idea of time series search engine focuses on the system architecture and the data processing and pipelining aspect of this such an architecture cite:Zhang_2012. However, in citeyear:Keogh_2000 citeauthor:Keogh_2000 also applied a dimensionality reduction technique (Piecewise Constant Approximation) to execute fast search similarity search in  large time series databases. Other papers address domain specific questions like the introduction of a "Time-series Subimage Search Engine for archived astronomical data" cite:Kang_2021.
 
-For our task of enabling a fast comparison between time series mainly two areas of research are relevant: (1) measures of similarity, and (2) time series representation. Similarity is a metric of central importance in many data mining and machine learning activities whether the studied objects are time series or not. They are required for clustering and classification activities. In our case it expresses either absolute or relative similarity or dissimilarity between time series. For our use case it can help us rank the a list of time series in their proximity to the time series currently under review.
+In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. citeauthor:Wang_2012 reviewed time series measures and categorized the similarity measures into 4 categories: (1) lock-step measures, (2) elastic measures, (3) threshold-based measures, and (4) pattern-based measures. citeauthor:Zhang_2020 classify similarity measures in the categories: (1) time-rigid methods (Euclidean Distance), (2) time-flexible measures (dynamic time-warping), (3) feature-based measures (Fourier coefficients), and (4) model-based methods (auto-regression and moving average model) cite:Zhang_2020. Lock-step measures include the L_p-norms (Manhattan and Euclidean Distance) as well as Dissimilarity Measure (DISSIM). Elastic measures include metrics like Dynamic Time Warping (DTW) and edit distance based measures like Longest Common Subsequence (LCSS), Edit Sequence on Real Sequence (EDR), Swale and Edit Distance with Real Penalty. An example for threshold-based measures are threshold query based similarity search (TQuEST). And Spatial Assembling Distance (SpADe) is an example for pattern-based measures. In another paper, citeauthor:Gharghabi_2020 classify the space of similarity measures by the the most common measures into: (1) Euclidean Distance, (2) Dynamic Time Warping (DTW), (3) Least Common Subsequence (LCSS), and (4) K-Shape.
 
-Representation of time series concerns itself with the optimal combination of reduction of the data dimensionality but adequate capture of its particular properties. With these methods feats like minimizing noise, managing outliers can be achieved. Also, the reduction of computation time for all sorts of algorithms can be achieved due to the reduction of dimensionality.
+Dynamic Time Warping (DTW) is an elastic measure. It has been introduced by citeauthor:Berndt94usingdynamic in citeyear:Berndt94usingdynamic and its key advantage is the fact that comparison is applied on a one-to-many-basis allowing the comparison of regions from one series to regions of the other time series. This gives it the capability to warp peaks or valleys between different time steps of the two series as the resulting distance metric. As will be shown in section [[sec:dtw]] this comes at the price of time complexity which renders it effectively useless in practice when applied to large scale data sets.
 
-*** Measuring similarity
-In order to be able to describe the closeness of time series or multiple time series to each a measure for similarity is required. In the literature various general measures and corresponding computation methods can be found. citeauthor:Wang_2012 reviewed time series measures and categorized the similarity measures into 4 categories: (1) lock-step measures, (2) elastic measures, (3) threshold-based measures, and (4) pattern-based measures. citeauthor:Zhang_2020 classify similarity measures in the categories: (1) time-rigid methods (Euclidean Distance), (2) time-flexible measures (dynamic time-warping), (3) feature-based measures (Fourier coefficients), and (4) model-based methods (auto-regression and moving average model) cite:Zhang_2020. 
+Other attempts are also made in introducing new distance metrics. citeauthor:Gharghabi_2020 introduced a new metric called MPdist (Matrix Profile Distance) which is more robust than Euclidean Distance (ED) - more details can be found in section [[sec:ed]] - and Dynamic Time Warping (DTW) - more details can be found in section [[sec:dtw]] - and computationally preferable. Interestingly, due to the use of subsequences in the comparison of two time series its time complexity ranges from $\mathcal{O}(n^2)$ in the worst case, to $\mathcal{O}(n)$ in the best case and with this can provide a significant advantage of prevalent methods like ED or DTW.
 
-*Lock-step measures* include the L_p-norms (Manhattan and Euclidean Distance) as well as Dissimilarity Measure (DISSIM). *Elastic measures* include metrics like Dynamic Time Warping (DTW) and edit distance based measures like Longest Common Subsequence (LCSS), Edit Sequence on Real Sequence (EDR), Swale and Edit Distance with Real Penalty. An example for *threshold-based measures* are threshold query based similarity search (TQuEST). And Spatial Assembling Distance (SpADe) is an example for pattern-based measures.
+The other research area of interest for our task is time series representation. It concerns itself with the optimal combination of reduction of the data dimensionality but adequate capture of its particular properties. With these methods feats like minimizing noise, managing outliers can be achieved. For many activities this is also the basis for the reduction of time complexity in the resulting algorithms that analyze and compare the time series.
 
-A flexible category are the *elastic measures*. Their key advantage is the fact that comparison is applied on a one-to-many-basis allowing the comparison of regions from one series to regions of the other time series as well as comparing the all the points of one series to all the points of the other series.
+According to citeauthor:Li_2019 the following methods are common methods for this task: (1) Discrete Fourier Transformation (DFT), (2) Singular Value Decomposition (SVD), (3) Discrete Wavelet Transformation (DWT), (4) Piecewise Aggregate Approximation (PAA), (5) Adaptive Piecewise Constant Approximation (APCA), (6) Chebyshev polynomials (CHEB), (7) Symbolic Aggregate approXimation, and others cite:Li_2019. In their paper, citeauthor:Pang_Liu_Peng_Peng_2018 mention (1) Singular Value Decomposition (SVD), (2) Frequency-Domain transformation, (3) Piecewise Linear Representation (PLR), (4) model-based method, and (5) symbolic representation.
+
+Singular Value Decomposition is a fundamental matrix factorization technique with a plethora of applications and use cases. It's value comes from the capability of generating low rank approximations of data matrices that allow to represent the matrix values via the unitary matrices.
+
+- Principal Component Analysis
+- SAX
+- Discrete Fourier Transform (DFT) and Discrete Wavelet Transform (DWT)
+  - mention origin in signal processing and ubiquitous use in engineering (image and audio compression)
+** Similarity metrics
+
 
 *** Euclidean Distance
+<<sec:ed>>
 Euclidean Distance is the most widely used distance metric in the research of time series. It is either used as a metric on its on or a as metric used used inside other methods to compute distances, for example, computation of distance of subsections of the data (cite:Faloutsos_1994) or to compute the distance between various points of two time series (see section [[sec:dtw]]). Having two time  series $S = \{s_1, s_2, \dots, s_n\}$ and $Q = \{q_1, q_2, \dots, q_n \}$ both of length $n$ the Euclidean distance can be computed as:
 #+BEGIN_EXPORT latex
 \begin{equation}
@@ -73,7 +83,7 @@ D(S,Q) = \sqrt{\sum_{i=1}^{n}{(S_i,Q_i)^2}}
 \end{equation}
 #+END_EXPORT
 
-It is a measure that is easy to compute and comprehend and gives intuitive input for the distance of two time series. From the standpoint of computational complexity the algorithm is applicable also to larger datasets with $\mathcal{O}(n)$. Its simplicity also creates some limitations. For example, to compute the euclidean distance between two series their length needs to be the same. Furthermore, it can be easily impacted in its results by the presence of outliers or increased levels of noise. It is not elastic with respect to the warping of information between two series in which effects that could indicate similarity happen even at slightly disparate steps.\\
+It is a measure that is easy to compute and comprehend and gives intuitive input for the distance of two time series. From the standpoint of time complexity the algorithm is applicable also to larger datasets with $\mathcal{O}(n)$. Its simplicity also creates some limitations. For example, to compute the euclidean distance between two series their length needs to be the same. Furthermore, it can be easily impacted in its results by the presence of outliers or increased levels of noise. It is not elastic with respect to the warping of information between two series in which effects that could indicate similarity happen even at slightly disparate steps. 
 
 Despite its shortcomings it is a prominent metric and widely used for distance calculations for short comings. Some of its limitations are addressed by more sophisticated metrics that utilize its computation as component.
 
@@ -119,30 +129,24 @@ Figure [[img_warp_path_ex]] provides an example for a warping path result.
 #+NAME: img_warp_path_ex
 [[./img/dtw_3way.png]]
 
-The challenge with the application of DTW is the computational complexity of the algorithm $\mathcal{O}(m*n)$ due to the fact that the distance compuation needs to be executed for each element of each series. Various methods for speed improvements have been introduced. The favorite principle was described by citeauthor:Ratanamahatana_2004. They introduced an adjustment window condition that where it is assumed that the optimal path does not drift very far from the diagonal of the cost matrix cite:Ratanamahatana_2004. However, this does not change the fundamental nature of the algorithm and computing DTW for multiple time series against a database of time series will require days of computation time even on modern computer architectures.\\
+The challenge with the application of DTW is the time complexity of the algorithm $\mathcal{O}(m*n)$ due to the fact that the distance compuation needs to be executed for each element of each series. Various methods for speed improvements have been introduced. The favorite principle was described by citeauthor:Ratanamahatana_2004. They introduced an adjustment window condition that where it is assumed that the optimal path does not drift very far from the diagonal of the cost matrix cite:Ratanamahatana_2004. However, this does not change the fundamental nature of the algorithm and computing DTW for multiple time series against a database of time series will require days of computation time even on modern computer architectures. 
 
-In favor of DTW needs to be stated, that it is flexible with regards to the series used. The compared time series do not require to have the same length and can still be compared. This is a property that is not avaiable with Euclidean Distance. However, the user also needs to be aware of outliers in either data set which can lead to a clustering of the warping path or pathological matches around those extreme points in the series.\\
+In favor of DTW needs to be stated, that it is flexible with regards to the series used. The compared time series do not require to have the same length and can still be compared. This is a property that is not avaiable with Euclidean Distance. However, the user also needs to be aware of outliers in either data set which can lead to a clustering of the warping path or pathological matches around those extreme points in the series. 
 
 Therefore in practice, Dynamic Time Warping is not a method suitable for comparing a single time series against a large array of series when speed is an important criterion as well as the handling of outliers in the dataset.
 
 **** Similarity through decomposition
 - introduce time series decomposition (reference in cite:hyndman2014forecasting)
 - trend and seasonality (mention assumptions about period)
-*** Time series representation
-According to citeauthor:Li_2019 the following methods are common methods for this task: (1) Discrete Fourier Transformation (DFT), (2) Singular Value Decomposition (SVD), (3) Discrete Wavelet Transformation (DWT), (4) Piecewise Aggregate Approximation (PAA), (5) Adaptive Piecewise Constant Approximation (APCA), (6) Chebyshev polynomials (CHEB), (7) Symbolic Aggregate approXimation, and others cite:Li_2019. In their paper, citeauthor:Pang_Liu_Peng_Peng_2018 mention (1) Singular Value Decomposition (SVD), (2) Frequency-Domain transformation, (3) Piecewise Linear Representation (PLR), (4) model-based method, and (5) symbolic representation.
+** Time series representation
 
 
-
-- Principal Component Analysis
-- SAX
-- Discrete Fourier Transform (DFT) and Discrete Wavelet Transform (DWT)
-  - mention origin in signal processing and ubiquitous use in engineering (image and audio compression)
 
 *** Challenges when building a time series
 - length of series
 - trend
 - seasonality
-- computational complexity -> issue because of data size
+- time complexity -> issue because of data size
 - granularity or sampling rates
 - noise
 - data quality
@@ -167,7 +171,7 @@ One of the aspects that has been correct up until the 5th installment of the M-c
 One interesting question in this area is whether clustering of time series that have similar properties and training algorithms per cluster of "similar" series can help simplify the learning process for machine learning methods and in consequence improve their performance in future competitions.
 
 # reference to relevant chapter
-However, expressing similarity for time series is a challenging questions with respect to which metrics to utilize, computational complexity as well as limiting assumptions that need to be made for time series.
+However, expressing similarity for time series is a challenging questions with respect to which metrics to utilize, time complexity as well as limiting assumptions that need to be made for time series.
 
 *** Main contribution of the thesis
 - transformation into Fourier-space
@@ -203,7 +207,7 @@ R vs. Python vs. Mathematica, Matlab
 - (maybe ) improvement in forecasting approach
 - find dataset with ground truth and compare DTW to this approach
 - Distance metrics
-- computational complexity
+- time complexity
 ** Conclusion & future work
 *** Successes
 *** Failures
