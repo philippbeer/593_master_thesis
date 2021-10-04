@@ -122,20 +122,20 @@ where often time euclidean distance is used as distance function $D(s_i, q_j) = 
 
 #+BEGIN_EXPORT latex
 \begin{equation}
-max(m,n) \leq k < m+n-1
+\max(m,n) \leq k < m+n-1
 \end{equation}
 #+END_EXPORT
 
 The warping path is constrained with bound with the following condition $p_1 = (1,1)$ and $p_K = (m,n)$. That means that both first elements of each series, as well as, the last element of each series are bound to each other in the computation. The warping path also is continuous. This means that from each chosen element $p_k$ only the neighboring elements to the left, right and diagonally can be chosen for the continuation of the path: $p_k= (a,b)$ and $p_{k-1} = (a',b')$ with $a-a' <=1$ and $b-b' <= 1$. The path elements $p_k$ are also monotonous, meaning that $a-a' \geq 0$ and $b-b' \geq 0$. From the resulting matrix considering the mentioned constraints a cumulative distance $\gamma(i,j)$ is computed recursively:
 #+BEGIN_EXPORT latex
 \begin{equation}
-\gamma(i,j) = D(s_i,q_j) + min \{\gamma(i-1, j-1, \gamma(i-1, j), \gamma(i, j-1)\}
+\gamma(i,j) = D(s_i,q_j) + \min \{\gamma(i-1, j-1), \gamma(i-1, j), \gamma(i, j-1)\}
 \end{equation}
 #+END_EXPORT
 Therefore, the path can obtained by the following definition:
 #+BEGIN_EXPORT latex
 \begin{equation}
-DTW(S,Q) = min\{\sum_{k=1}^P \delta{(\omega_k)}
+DTW(S,Q) = \min_{P: Warping Path}\left\{\sum_{k=1}^K \sqrt{p_k}\right\}
 \end{equation}
 #+END_EXPORT
 
