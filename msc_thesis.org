@@ -12,12 +12,11 @@
 #+PROPERTY: header-args :exports none :tangle "./bibliography/593_thesis.bib"
 #+LATEX_HEADER: \usepackage[natbib=true,citestyle=ieee, maxcitenames=2, mincitenames=1]{biblatex} \DeclareFieldFormat{apacase}{#1} \addbibresource{./bibliography/593_thesis.bib}
 
-* Thesis: Time Series Search Engine
-** Purpose
+
+* Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
 
-** Introduction
-
+* Introduction
 Time series is often described as "anything that is observed sequentially over time" which usually are observed at regular intervals of time cite:hyndman2014forecasting. They can be described as collection of observations that are considered together in chronological order rather than as individual values or a multiset of values. Their representation can be described as ordered pairs:
 $S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestamp or any other element that defines order. $v_1$ represents the observation at that position in the time series.
 
@@ -27,7 +26,7 @@ citeauthor:Fu_2011 in their work cite:Fu_2011 categorized time series research i
 
 In this thesis we will focus on creating a algorithm allowing the fast and meaningful comparison of an input time series or template against a vast array time series. Within the research many different areas and approaches have been attempted (at list here). However, there is a tendency to apply the simplest methods possible to achieve the desired results. For time series those are mainly Euclidean Distance and Dynamic Time Warping. While those methods will be explored in section [[sec:exis_work]] it can be said that those methods are simple, easy to understand and produce mostly reliable results in their respective application domains. Good performance is not their strong suit. Therefore, our approach is targeted to achieving comparable capability in identifying similar series, while achieving it with a significant reduction in computational complexity.
 
-*** Applications
+** Applications
 <<sec:apps>>
 Time series are encountered everywhere. Any metric that is captured over time can utilized as time series. Granularity can be used as descriptor for the sampling rate of a series or more general how often measurements for a particular metric are taken. This granularity has a tendency to increase as well. As example consumer electronics that capture health and fitness data can mentioned. Or sensors which are utilized in the automotive industry or heavy machinery where they are employed to capture information for predictive maintenance applications.\\
 
@@ -40,10 +39,10 @@ In engineering fields the utilization is often times similar to the above but it
 Time series data is paramount to a wide variety of areas, relating to many different fields. Looking at the trajectory it seems likely that going forward more time series data on a higher granularity will be generated. This in turn increases the need to be able process, analyze, compare and respond to the data with methods that are faster than today's standard options.
 
 
-*** Organization of this thesis
+** Organization of this thesis
 The rest of this thesis is organized as follows:
 
-*** TODO to be integrated
+** TODO to be integrated
 - refer to previous work on measures of similarity and outcome
 - measure of similarity required
 - challenges with time series (domains, granularity, length, outliers)
@@ -52,7 +51,7 @@ The rest of this thesis is organized as follows:
 
 
   
-** Related work
+* Related work
 <<sec:exis_work>>
 Related work addressing the idea of time series search engine focuses on the system architecture and the data processing and pipelining aspect of this such an architecture cite:Zhang_2012. However, in citeyear:Keogh_2000 citeauthor:Keogh_2000 also applied a dimensionality reduction technique (Piecewise Constant Approximation) to execute fast search similarity search in  large time series databases. Other papers address domain specific questions like the introduction of a "Time-series Subimage Search Engine for archived astronomical data" cite:Kang_2021.
 
@@ -66,7 +65,7 @@ The other research area of interest for our task is time series representation. 
 
 According to citeauthor:Li_2019 the following methods are common methods for this task: (1) Discrete Fourier Transformation (DFT), (2) Singular Value Decomposition (SVD), (3) Discrete Wavelet Transformation (DWT), (4) Piecewise Aggregate Approximation (PAA), (5) Adaptive Piecewise Constant Approximation (APCA), (6) Chebyshev polynomials (CHEB), (7) Symbolic Aggregate approXimation, and others cite:Li_2019. In their paper, citeauthor:Pang_Liu_Peng_Peng_2018 mention (1) Singular Value Decomposition (SVD), (2) Frequency-Domain transformation, (3) Piecewise Linear Representation (PLR), (4) model-based method, and (5) symbolic representation.
 
-*** Dimensionality Reduction related to Singular Value Decomposition
+** Dimensionality Reduction related to Singular Value Decomposition
 Singular Value Decomposition is a fundamental matrix factorization technique with a plethora of applications and use cases. It's value comes from the capability of generating low rank approximations of data matrices that allow to represent the matrix values via the unitary matrices $\bm{U} \in \mathbb{C}^{n \times n}$ and $\bm{V} \in \mathbb{C}^{m \times m}$. The columns in in $\bm{U}$ and  $\bm{V}$ are orthonormal. The remaining matrix $\bm{\Sigma} \in \mathbb{R}^{n \times m}$, is a diagonal matrix with non-negative entries.
 
 The power of the SVD is its ability to provide a low-dimensional approximation to high-dimensional data cite:brunton2019data. High dimensional data is often determined by a few dominant patterns which can be described by a low-dimensional attractor. Therefore, a prime application for the SVD is dimensionality reduction. It is complementary to the Fast Fourier Transform (FFT) which lays at the core of this work. citeauthor:brunton2019data describe it as the generalization of the FFT.
@@ -75,8 +74,8 @@ Principal Component Analysis (PCA) is a very common application of the SVD. It w
 
 The Fast Fourier Transform (FFT) is based upon the Fourier Transform introduced by Joseph Fourier in early 19^th century to analyze and analytically represent heat transfer in solid objects cite:fourier1822théorie. This transform is a fundamental component of modern computing and science in general. It has transformed how technology can be used in the in 20^th century in areas such as image and audio compression and transfer. The concept will be introduced in more detail in section [[sec:fft]]. Its core idea is to represent the data to be transformed as the coefficients of a basis of sine and cosine eigenfunctions. It is similar to the principles of the SVD with the notable difference that the basis are an infinite sum of sine and cosine functions. The ability to reduce to the transformed data to few key components is the same as in SVD and PCA.
 
-*** Symbolic Aggregate approXimation
-A dimensionality reduction technique that does not built on SVD and is geared directly towards time series is the Symbolic Aggregate approXimation (SAX) algorithm. Its core idea is to transform a time series into a set of strings via piecewise aggegrate approximation (PAA) and a conversion of the results via a lookup table. Starting with PAA the reduction of a time series $T$ of length $n$ in vector $\bar{S} = \bar{s_1}, \bar{s_2}, \dots, \bar{s_w}$ of length $w$ where $w < n$, can be achieved through the following computation:
+** Symbolic Aggregate approXimation
+A dimensionality reduction technique that does not built on SVD and is geared directly towards time series is the Symbolic Aggregate approXimation (SAX) algorithm. Its core idea is to transform a time series into a set of strings via piecewise aggegrate approximation (PAA) and a conversion of the results via a lookup table cite:Lin_2003. Starting with PAA the reduction of a time series $T$ of length $n$ in vector $\bar{S} = \bar{s_1}, \bar{s_2}, \dots, \bar{s_w}$ of length $w$ where $w < n$, can be achieved through the following computation:
 #+BEGIN_EXPORT latex
 \begin{equation}
 \bar{s_i} = \frac{w}{n} \sum_{j=\frac{n}{w}(i-1)+1}^{\frac{n}{w}i} s_j
@@ -87,10 +86,30 @@ A dimensionality reduction technique that does not built on SVD and is geared di
 #+NAME: img_paa
 [[./img/paa_example.png]]
 
-This simply computes the mean of each of sub sequences determined through parameter $w$. An example from the M4 dataset can be seen in figure [[img_paa]]. For its application in SAX the time series are standardized or mean normalized, so that the comparison happens on the same amplitude. From this representation the data is further transformed to obtain a discrete representation. Due to the Gaussian distribution of the standardized data the transformed symbols are equiprobable. From this 
-** Relevant Concepts
+This simply computes the mean of each of sub sequences determined through parameter $w$. An example from the M4 dataset can be seen in figure [[img_paa]]. For its application in SAX the time series are standardized or mean normalized, so that the comparison happens on the same amplitude. From this representation the data is further transformed to obtain a discrete representation via the mapping of the values computated via PAA to a symbolic representation of a letter. The used discretization should accomplish equiprobability in the assignments of the symbols cite:Lin_2007. The authors show by example of taking subsequences of length 128 from 8 different time series that the resulting PAA transformation has a Gaussian dstribution. This property does not hold for all series. And in place where it does not hold the algorithm performance deteriorates. If the assumption that the data distribution is Gaussian is true, breakpoints that will produce equal-sized areas can be obtained from a statistical table. The breakpoints are defined as $B = \beta_1, \beta_2, \dots, \beta_{a-1}$ so that the area under a Gaussian curve $N(0,1)$ from \beta_i to $\beta_{i+1}= \frac{1}{a}$  (\beta_0 and \beta_a are defined as -\inf and \inf) cite:Lin_2007. Table [[tab_breakpoints]] shows the value ranges for values of a from 3 to 10 and has been reproduced from cite:Lin_2007.
 
-*** Euclidean Distance
+#+CAPTION: Lookup table - reproduced from citeauthor:Lin_2007
+#+NAME: tab_breakpoints
+| \beta_i |     3 |     4 |     5 |     6 |     7 |     8 |     9 |    10 |
+|---------+-------+-------+-------+-------+-------+-------+-------+-------|
+| \beta_1 | -0.43 | -0.67 | -0.84 | -0.97 | -1.07 | -1.15 | -1.22 | -1.29 |
+| \beta_2 |  0.43 |     0 | -0.25 | -0.43 | -0.57 | -0.67 | -0.76 | -0.84 |
+| \beta_3 |       |  0.67 |  0.25 |     0 | -0.18 | -0.32 | -0.43 | -0.52 |
+| \beta_4 |       |       |  0.84 |  0.43 |  0.18 |     0 | -0.14 | -0.25 |
+| \beta_5 |       |       |       |  0.97 |  0.57 |  0.32 |  0.14 |     0 |
+| \beta_6 |       |       |       |       |  1.07 |  0.67 |  0.43 |  0.25 |
+| \beta_7 |       |       |       |       |       |  1.15 |  0.76 |  0.52 |
+| \beta_8 |       |       |       |       |       |       |  1.22 |  0.84 |
+| \beta_9 |       |       |       |       |       |       |       |  1.28 |
+|---------+-------+-------+-------+-------+-------+-------+-------+-------|
+
+Based into which \beta category a value of PAA fits a symbol is assigned. "*a*" is reserved for values smaller than \beta_1 and values execeeding \beta_{a-1} is assigned the last symbolic value which differs depending on how many categories are chosen.
+
+As stated before, this method relies on the fact that the data is normally distributed. Therefore, it can be great to detect for example anomalies in streaming data. Also the distance computation is preserved on the PAA values. However, the distance computation is still based on Euclidean Distance (ED) and has the same time complexity as before, but for fewer data points compared to the original series.
+* Underlying Concepts
+This ssection gives an overview of the concepts utilized in this thesis to generate the baseline performance of the algorithm against which our
+
+** Euclidean Distance
 <<sec:ed>>
 Euclidean Distance is the most widely used distance metric in the research of time series. It is either used as a metric on its on or a as metric used used inside other methods to compute distances, for example, computation of distance of subsections of the data (cite:Faloutsos_1994) or to compute the distance between various points of two time series (see section [[sec:dtw]]). Having two time  series $S = \{s_1, s_2, \dots, s_n\}$ and $Q = \{q_1, q_2, \dots, q_n \}$ both of length $n$ the Euclidean distance can be computed as:
 #+BEGIN_EXPORT latex
@@ -103,7 +122,7 @@ It is a measure that is easy to compute and comprehend and gives intuitive input
 
 Despite its shortcomings it is a prominent metric and widely used for distance calculations for short comings. Some of its limitations are addressed by more sophisticated metrics that utilize its computation as component.
 
-*** Dynamic Time Warping
+** Dynamic Time Warping
 <<sec:dtw>>
 citeauthor:Berndt94usingdynamic introduced Dynamic Time Warping in citeyear:Berndt94usingdynamic finding the minimal alignment between two time series computed through a cost matrix and identifying the minimized path through the matrix starting from the final elements of each time series. This warps the points in time between the different series as shown in figure [[img_dtw_example]].
 
@@ -154,14 +173,14 @@ Therefore in practice, Dynamic Time Warping is not a method suitable for compari
 **** Similarity through decomposition
 - introduce time series decomposition (reference in cite:hyndman2014forecasting)
 - trend and seasonality (mention assumptions about period)
-*** Fast Fourier Transform
+** Fast Fourier Transform
 <<sec:fft>>
-fast fourier transform
-** Time series representation
+
+* Time series representation
 
 
 
-*** Challenges when building a time series
+** Challenges when building a time series
 - length of series
 - trend
 - seasonality
@@ -172,14 +191,14 @@ fast fourier transform
 - similarity is task dependent (level)
 - usual need for preprocessing the time series data (denoising, detrending, amplitude scaling) -> any pre-processing does modify the series
 
-*** Data Analysis
+** Data Analysis
 what does M4 data look like
-*** Challenges
+** Challenges
 - How many frequencies to compare?
 - priorities of frequencies (power spectrum)
 - different length of time series (leading to different  frequencies) - ranges solved with logs
-** Methodology
-*** Used Data
+* Methodology
+** Used Data
 The research in time series has been numerous and focused on various properties of them as well as finding methods to accurately predict them. Aside of forecasting all researched areas are measures of similarity and retrieval of time series.
 
 **** Forecasting
@@ -192,51 +211,51 @@ One interesting question in this area is whether clustering of time series that 
 # reference to relevant chapter
 However, expressing similarity for time series is a challenging questions with respect to which metrics to utilize, time complexity as well as limiting assumptions that need to be made for time series.
 
-*** Main contribution of the thesis
+** Main contribution of the thesis
 - transformation into Fourier-space
 - transfer frequencies into frequency range band with increasing range width (using log scale)
 - computation of frequency energy levels (sort and keep top 5) -> ask Prof. how to name this parameter
 - conversion of ordered frequencies into frequency range band
 - for each series to compare -> compare whether the frequency matches on the ordered positions -> provide exponential value per position -> match on more powerful frequencies is valued higher
-*** additional computations
+** additional computations
 - utilization of FFT utilizes only frequency space (future work should consider comparison of energy levels per frequency)
 - additional simple statistics computed (mean, std, quantiles)
 - ts decomposition for trend estimation (requires parameter for period) -> then best line fit for slope of the time series
 - computation of deltas for each series to search with statistics and slope of all other time series (review computational complexlity)
 - ranking of matching series based highest frequency range match and ONE statistic
-***  Preprocessing
+**  Preprocessing
 - M4 data wide format vs. long format
-*** Parallelization
+** Parallelization
 - computation times
 - scalability
 - Samples for results only (stratification vs. non-stratification)
 **** Threads vs. Processes
 
-*** Technology (check with Prof. if required)
+** Technology (check with Prof. if required)
 R vs. Python vs. Mathematica, Matlab
-*** 
+** 
 - load
 - transform to FFT vector space
 - compare most important frequencies
 - compare candidates
 - select winner (which criteria)
-** Exploratory Data Study
+* Exploratory Data Study
 - what do results look like
-** Formal Evaluation
+* Formal Evaluation
 - (maybe ) improvement in forecasting approach
 - find dataset with ground truth and compare DTW to this approach
 - Distance metrics
 - time complexity
-** Conclusion & future work
-*** Successes
-*** Failures
-*** Flaws
+* Conclusion & future work
+** Successes
+** Failures
+** Flaws
 - final computation
-*** What is missing
+** What is missing
 - denoising of time series
 - adjustment of number of frequencies used
 -
-** Results & Discussion
-** References
+* Results & Discussion
+* References
 #+LATEX: \printbibliography[heading=none]
 
