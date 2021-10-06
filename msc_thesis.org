@@ -199,8 +199,41 @@ The norm of the inner product of the functions can also be expressed as integral
 \|f\|_2 = (\langle f,\, f\rangle)^{\frac{1}{2}} = \sqrt{\langle f, \, f \rangle} = \left( \int_a^b f(x) \, \compconj{f}(x)dx  \right)^{\frac{1}{2}}.
 \end{equation}
 #+end_export
- # continue with lebesque
+The last required step is transferring the applicability from a finite-dimensional vector space to an infinite-dimensional vector space. For this we can use the Lebesgue integrable functions or square integrable functions $L^2([a,b])$. All functions with a bounded norm define the set of square-integrable functions cite:brunton2019data. Next we will show how a Fourier series is a projection of a function onto the orthogonal set of sine and cosine functions.
 
+*** Fourier Series
+As the name suggests the Fourier series is an infinite sum of sine and cosine functions of increasing frequency. The mapped function is assumed to be periodic. A simple case of $2\pi$-periodic can be shown as:
+#+begin_export latex
+\begin{equation}
+f(x) = \frac{a_0}{2} + \sum_{k=1}^\infty (a_k \cos(kx) + b_k\sin(kx)).
+\end{equation}
+#+end_export
+If one imagines that this transformation projects the function onto a basis of cosine and sine, $a_k$ and $b_k$ are coefficients that represent the coordinates of where in that space the function is projected.
+#+begin_export latex
+\begin{equation}
+a_k=\frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\cos(kx)dx,
+\end{equation}
+\begin{equation}
+b_k=\frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin(kx)dx.
+\end{equation}
+#+end_export
+
+This expression can be re-written in the form of an inner product:
+#+begin_export latex
+\begin{equation}
+a_k = \frac{1}{\|\cos(kx)\|^2} \langle f(x),\, \cos(x)\rangle
+\end{equation}
+\begin{equation}
+b_k = \frac{1}{\|\sin(kx)\|^2} \langle f(x),\, \sin(x)\rangle
+\end{equation}
+#+end_export
+The squared norms are $\|\cos(kx)\|^2 = \|\sin(kx)\|^2 = \pi$. However, this only works for 2\pi-periodic functions. For real world data this is obviously most often not the case. Therefore, another term needs to be added that stretches the 2\pi-periodicity to length of the observed domain $[0,L)$ with $\frac{kx}{L}*2\pi$. This L-periodic function is then given by:
+#+begin_export latex
+\begin{equation}
+f(x) = \frac{a_0}{2} \sum \left( a_k\cos \left( \frac{2\pi kx}{L}  \right)  \right)
+\end{equation}
+
+#+end_export
 * Time series representation
 
 
