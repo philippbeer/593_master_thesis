@@ -478,6 +478,10 @@ R vs. Python vs. Mathematica, Matlab
 - select winner (which criteria)
 * Exploratory Data Study
 - what do results look like
+
+  #+CAPTION: Frequency Distribution for different FFT types
+  #+NAME: fig:freq_dist_ucr
+  [[./img/freq_dist_ucr.png]]
 * Formal Evaluation
 - (maybe ) improvement in forecasting approach
 - find dataset with ground truth and compare DTW to this approach
