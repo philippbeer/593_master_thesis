@@ -18,6 +18,10 @@
 * Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
 
+ts forecasting big challenge, stats approaches, ML approaches which lag - however, little explored area how curated datasets can improve forecasting results and possibly improve of data analytics results or just simply see which time series show similar properties. lots of work similarity measures but compute intensivenes forbids large scale use of them when large data amounts are present
+
+explore a method here that provides value insight on similarity is flexible and computationally significantly cheaper than what is represents the current standard
+
 * Introduction
 Time series is often described as "anything that is observed sequentially over time" which usually are observed at regular intervals of time cite:hyndman2014forecasting. They can be described as collection of observations that are considered together in chronological order rather than as individual values or a multiset of values. Their representation can be described as ordered pairs:
 $S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestamp or any other element that defines order. $v_1$ represents the observation at that position in the time series.
@@ -396,10 +400,31 @@ This is the magnitude of the particular frequency. In figure [[fig:fft_example]]
 #+attr_latex: 200px
 [[./img/fft_example.png]]
 *** Spectral Leakage
+<<sec:spec_leak>>
 The Fast Fourier Transform (FFT) assumes that the signal continues infinitely in time and that there no discontinuities. However, any signal in the real world, including time series has finite data points. If the time domain is an integer multiple of of the frequency $k$ than each records connects smoothly to the next. Real world processes generally do not follow sinusoidal wave forms and can contain significant amounts of noise, as well as phase changes and trends. So if the signal is not an integer multiple of the sampling frequency $k$ this signal leaks into the adjacent frequency bins. See figure [[fig:fft_example]] in the power spectrum plot around 10^1. Both on the left a likely example of spectral leakage can be observed. As we intend to use the ranked by energy leve frequencies to look for similarities between time series this can be an issue as we want to avoid that the leaked frequencies are utilized for the determination of the most important frequencies. We will look at window functions to address this issue.
+*** Window Functions
+In the field of signal processing a lot of research has been conducted to combat the spectral leakage described in section [[sec:spec_leak]]. One way of addressing spectral leakage are window functions, also called tapering or apodization functions. They help reduce the undesired effects of spectral leakgage. They have been used successfully in various areas of signal processing, like speech processing, digital filter design and spectrum estimation cite:kumar2011. Spectrum estimation is the field we will apply them here.
+
+The windows applied to data signals affect several properties of harmonic processors like the Fast Fourier Transform (FFT), like detectability, resolution, and others cite:harris1978. The window functions are designed such that in the spectral analysis they help reduce the side lobes next to the main beams of the spectral output of the Fast Fourier Transform (FFT). A side effect is that the main lobe broadens and thus the resolution is decreased cite:kumar2011. The sprectral power in a particular bin contains leakage from neighboring bins. The window function brings the data  down to zero at the edges of the time series. An example applied to a series from the M4 dataset can be seen in figure [[fig:ham_wdw]].
+
+#+caption: Hamming window example with M4 time series M4516
+#+name: fig:ham_wdw
+[[./img/ham_window_example.png]]
+
+
+The Hamming window is named after R.W. Hamming. It is one of many window functions and is defined as
+#+begin_export latex
+\begin{equation}
+w(n) = 0.54 - 0.46 \cos \left( \frac{2\pi n}{M - 1}  \right) \quad
+0 \leq n \leq M - 1,
+\end{equation}
+#+end_export
+with $M$ being the length of time series to be covered.
+
+*** Welch's Method
+Another approach to address spectral leakage is Welch's method.
 
 * Time series representation
-asdfasdfasf
 
 ** Challenges when building a time series
 - length of series
@@ -413,11 +438,23 @@ asdfasdfasf
 - usual need for preprocessing the time series data (denoising, detrending, amplitude scaling) -> any pre-processing does modify the series
 
 ** Data Analysis
-To develop t
+To develop a method to find similar time series in a pool of time series a replicatable data set is required that ideally represents real-world scenarios from a wide range of fields with differing time granularities. In the literature two widely used datasets can be found which will be introduced in sections [[sec:m4_data]] and [[sec:ucr_data]]. For the process of developing the FFT-based similarity detection method the M4 competition data was used cite:M4CompetitionArchive2018. All parameter choices were done with the exploratory data analysis results of the M4 data. To verify their veracity the formal evaluation of the method results were conducted with UCR Time Series Classification Archive cite:UCRArchive2018. This was done ensure that the results found and parameter choices made are applicable between different data domains and time granularities, as well as providing reference points for quality of the method described in this thesis.
+
 *** M4 competition data
 <<sec:m4_data>>
+In his popular book citetitle:taleb2008black published in citeyear:taleb2008black the author citeauthor:taleb2008black introduced the M-competitions and its merits to an international readership. By that time already 3 M-competitions were already conducted with the first one done in citeyear:makridakis1982. citeauthor:makridakis1982 held the forecasting competition as a follow-up to a controversial paper published in citeyear:makridakis1979. In the paper citeauthor:makridakis1979 found that more sophisticated forecasting methods tended to lead to less accurate predictions, a view for which he highly criticited and personally attacked. The forecasting competition was an answer to the accusations to allow the experts to fine-tune their favorite forecasting methods to the best of their knowledge and compete for the most accurate predictions on the hold-out set cite:makridakis1982. The competition was based on 1001 different time series and provided an inside into the different properties of the various used forecasting methods. The data itself was selected with varying time granularities, different start and end times. It was chosen among data from different industries, firms and various countries. It consisted of macro-economic and micro-economic data. The results observed in the earlier work from citeyear:makridakis1979 was confirmed in the forecasting competition. The main observations were that stastically sophisticated methods on average provided not more accurate forecasts than simpler methods and accuracy improvement can be achieved by combining the results from various different methods cite:hyndman2020.
 
+With the M4 a random selection of 100,000 series was performed by Professor Makridakis and provided for the forecasting competition in 2018. It included data with a time granularity ranging from hourly, daily, weekly, monthly, quarterly, and yearly data. It came from various areas: micro-economical, industrial, macro-economical, finance, demographic and miscellaneous areas cite:makridakis2020. This a wide field of mostly socio-economic data with varying time granularities, different time series length. What is not present or possibly underrepresented in the dataset are time series generated by technical processes, like machine or sensor data. Nonetheless, these time series data are an ideal candidate to develop and test and method for discovering similar time series. This time series archive was chosen as the dataset to develop the algorithm of indentifying similar time series quickly based on their Fast Fourier transform.
+
+The latest completed  iteration of the Makridakis-competition is the M5 cite:spiliotis2021. It was completed in 2021 and was set up with product sales in 3 different states in 10 different stores in the United States. It consisted of the sales of 3490 different products sold by Walmart. The data came from the identical time frame ranging from 2011 to 2016. Due to the similar nature of the data contained in this dataset it was ruled as the basis for our investigation.
+
+At the time of this writing in fall 2021, the next installment of the Makridakis-competition, the M6 is in planning to be conducted starting in February 2022.
 *** UCR time series data
+<<sec:ucr_data>>
+Another important dataset with an even broader usage in time series research is the UCR Time Series Archive. It was first formed in 2002 by Prof. Keogh cite:hoang2019. It's intention was to provide a baseline for time series research which prior to that point mostly relied on testing a single time series per paper. The creators concluded that this makes comparing the results between papers almost impossible. The dataset was expanded in the subsequent decades with the last major expansion being conducted in 2018.
+
+In his citeyear:keogh2003 published paper citeauthor:keogh2003 describe the error of data bias which comes from testing new methods on a single time series or time series of the same kind, for example ECG data but extending the claim of the found results to various types of time series data or all time series data types. With this in mind the UCR Time Series Archive was compiled and subsequently extended with various time series from various areas including: (1) Image, (2) Spectro, (3) Sensor, (4) Simulated, (5) Device, (6) Motion, (7) ECG, (8) Traffic, (9) EOG, (10) HRM, (11) Traffic, (12) EPG, (13) Hemodynamics, (14) Power, and (15) Spectrum time series data. This is a wide spectrum of data which is different from the socio-economic data of the Makridakis competition datasets. Therefore, this dataset is a great candidate to validate the findings of the time series similarity search and conduct a formal evaluation of the results found via the M4 dataset. Furthermore, it provides a classification category for each time series dataset which in itself is made up of multiple time series. In this way running a formal evaluation, we can measure how many datasets are identified between the train and test set of the data that belong to the same dataset and dataset class. This metric can then be compared between the Dynamic Time Warping (DTW) algorithm and our method.
+
 ** Challenges
 - How many frequencies to compare?
 - priorities of frequencies (power spectrum)
@@ -497,6 +534,7 @@ R vs. Python vs. Mathematica, Matlab
 - adjustment of number of frequencies used
 -
 * Results & Discussion
-* References
-#+LATEX: \printbibliography[heading=none]
+
+#+LATEX: \printbibliography[title={References}, keyword={textref}]
+#+LATEX: \printbibliography[title={Data References}, keyword={dataref}]
 
