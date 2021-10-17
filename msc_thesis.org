@@ -15,6 +15,7 @@
 #+LATEX: \newcommand{\compconj}[1]{\overline{#1}}
 #+LATEX: \newcommand{\euler}{e}
 
+
 * Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
 
@@ -419,11 +420,57 @@ w(n) = 0.54 - 0.46 \cos \left( \frac{2\pi n}{M - 1}  \right) \quad
 0 \leq n \leq M - 1,
 \end{equation}
 #+end_export
-with $M$ being the length of time series to be covered.
+with $M$ being the length of time series to be covered. As can be seen in the figure, it minimizes the sidelobes created by the FFT, but it also minimizes valid signal at the edge of the time series data.
 
-*** Welch's Method
-Another approach to address spectral leakage is Welch's method.
+*** Bartlett's and Welch's Method
+Another approach to address spectral leakage is to average periodograms generated over multiple subsets of the time series. Welch's method is based on Bartlett's method which is described in the following cite:bartlett1948. Let us denote the x^th periodgram or power spectrum as $\hat{P}$.
+The idea that the average of the computed periodograms is unbiased:
+#+begin_export latex
+\begin{equation}
+\lim_{N \to \infty} E\{\hat{P}_{per}(\euler^{j\omega})\} = P_x(\euler^{j\omega})
+\end{equation}
+#+end_export
+So a consistent estimate of the mean, is a consistent estimate of the power spectrum. If we can assume that the realizations in the time series data are uncorrelated then they result in a consistent estimate of its mean. This means that the variance of the sample mean reduces with the number of measurements. They are inversly proportional. Therefore, averaging periodograms produces a the correct periodogram of the data. If we let $x_i(n)$ for $i = 1,2, \dots, K$ be $K$ uncorrelated realizations of a random process $x(n)$ over the interval of length $L$ with $ 0 \leq n < L$ and with $\hat{P}_{per}^{(i)}(\euler^{j\omega})$ the periodogram $x_i(n)$ is:
+#+begin_export latex
+\begin{equation}
+\hat{P}_{per}^{(i)}(\euler^{j\omega})= \frac{1}{L} \left\lvert \sum_{n=0}^{L-1} x_i(n)\euler^{-jn\omega}  \right\lvert^2 \quad ; \quad
+i= 1,2, \dots, K
+\end{equation}
+#+end_export
+These periodograms can then be averaged
+#+begin_export latex
+\begin{equation}
+\hat{P}_x (\euler^{j\omega}) = \frac{1}{K} \sum_{i=1}^K \hat{P}_{per}^{(i)}(\euler^{j\omega})
+\end{equation}
+#+end_export
+and gives us an asymptotically unbiased estimate of the power spectrum. Because of the assumption that the values are uncorrelated, the variance is inversely proportional to the number of measurements K
+#+begin_export latex
+\begin{equation}
+\text{Var} \left\{ \hat{P}_x(\euler^{j\omega})  \right\}= \frac{1}{K} \text{Var}\left\{ \hat{P}_{per}^{(i)}(e^{j\omega}) \right\} \approx \frac{1}{K}P_x^2(\euler^{j\omega})
+\end{equation}
+#+end_export
+However, the assumption that the time series data is uncorrelated does not hold. Bartlett proposed to circumvent that to partition the data into $K$ non-overlapping sequences of length $L$ with a time series $X = \{x_1,x_2,\dots,x_n\}$ of length $N$ such that, $N = K \times L$.
+#+begin_export latex
+\begin{equation}
+\begin{aligned}
+x_i(n) = x(n + iL) \quad n = & 0,1,\dots,L-1 \\
+                         i = & 0,1,\dots,K-1
+\end{aligned}
+\end{equation}
+#+end_export
+In consequence, Bartlett's method can be written as:
+#+begin_export latex
+\begin{equation}
+\hat{P}_B(e^{j\omega}) = \frac{1}{N} \sum_{i=0}^{K-1} \left\lvert \sum_{n=0}^{L-1} x(n + iL)e^{-j\omega} \right\rvert^2
+\end{equation}
+#+end_export
+An example of the split of time series can be seen in figure [[fig:bartlett]].
+#+caption: Bartlett's window example from M4: D3720
+#+name: fig:bartlett
+[[./img/bartlett_example.png]]
 
+
+Welch's method differs in
 * Time series representation
 
 ** Challenges when building a time series
