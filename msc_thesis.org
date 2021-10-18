@@ -470,7 +470,22 @@ An example of the split of time series can be seen in figure [[fig:bartlett]].
 [[./img/bartlett_example.png]]
 
 
-Welch's method differs in
+Welch's method differs in how the windows are applied to the dataset. For Welch's method the windows are not adjacent are overlapping. The original data set is still split into $K$ sequences of length $L$ overlapping by $D$ points with $0 \leq D < 1$. If the overlapping is defined to be 0, then this method is equivalent to Bartlett's method. An overlap of 50% can be achieved via $D = K/2$. The overlapping of the data segments effectively cures the fact that an applied window minimizes the data at the edges of the window. The i^th sequence can be described by $x_i(n)= x(n+iD) \; ; \; n=0,1,\dots,L-1$ with $L$ being the length of a sequence. $N$ can be computed by $N = L + D(K-1)$ where $K$ is the number of sequences. Welch's method is described by
+#+begin_export latex
+\begin{equation}
+\hat{P}_W(\euler^{j\omega})=\frac{1}{KLU} \sum_{i=0}^{K-1} \left\lvert \sum_{n=0}^{L-1} w(n)x(n+iD)\euler^{-jn\omega}  \right\rvert^2
+\end{equation}
+#+end_export
+with
+#+begin_export latex
+\begin{equation}
+U = \frac{1}{L} \sum_{n=0}^{L-1} \lvert w(n) \rvert^2
+\end{equation}
+#+end_export
+An example of time series split via Welch's method with $K=4$ can be seen in figure [[fig:welch]].
+#+caption: Welch's method windows example M4: D3720
+#+name: fig:welch
+[[./img/welch_example.png]]
 * Time series representation
 
 ** Challenges when building a time series
