@@ -6,6 +6,7 @@
 #+OPTIONS: num:3
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{mathtools}
+#+LATEX_HEADER: \usepackage{dsfont}
 #+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
 #+LATEX_HEADER: \usepackage[font=small, labelfont=bf, margin=1cm]{caption}
 #+LATEX_HEADER: \usepackage{bm}
@@ -329,6 +330,7 @@ f(x) = \mathcal{F}^{-1}(\hat{f}(\omega)) = \frac{1}{2\pi} \int_{-\infty}^{\infty
 #+end_export
 As long as $f(x)$ and $\hat{f}(\omega)$ belong to the Lebesgue integrable functions the integrals converge. In effect this means that functions have to tend to 0 as $L$ goes to infinity.
 *** Discrete Fourier Transform
+
 In order to be able to apply the Fourier transform to time series a they need to be applicable to discrete data as well. The Discrete Fourier Transform (DFT) approximates the Fourier transform on discrete data $\textbf{f} = [f_1, f_2, \dots, f_n]^T$ where $f_j$ is regularly spaced.
 The discrete Fourier transform pair is defined as:
 #+begin_export latex
@@ -341,6 +343,7 @@ f_k = \frac{1}{n} \sum_{j=0}^{n-1}\hat{f}_j\euler^{i2\pi jk/n}.
 #+end_export
 Via the DFT $\textbf{f}$ is mapped into the frequency domain $\hat{\textbf{f}}$. As before the output in the resulting DFT matrix is complex valued, meaning that it can be (and is) heavily used for physical interpretations for example in engineering questions as well.
 *** Fast Fourier Transform
+
 So far we have shown that the Fourier Series and the Discrete Fourier Transform can provide an exact representation of any arbitrary function or data generating process without requiring any assumptions or parameter settings. In the time complexity however we are dealing with an implementation that has complexity $\mathcal{O}(n^2)$. As an example, let's consider the M4 dataset, which will be introduced in section [[sec:m4_data]]. The longest series has $n=9919$ datapoints. Given the time complexity of the DFT this will include $\mathcal{O}(n^2)=9919^2=9.8 \times 10^8$ or about 1 billion operations. With the Fast Fourier Transform this can be reduced to a time complexity of $\mathcal{O}(n \log(n))$. In our example this results to $\mathcal{O}(9919 \log(9919)) = 1.3 \times 10^5$ or roughly 130,000 thousand operations. This is a improvement of factor 7,538. It is also an indication that when to time series it still provides very fast computation times.
 
 To be able to convert the DFT to the FFT a multiple of 2 datapoints is required. For example, take $n=2^6=64$. In this case the DFT matrix can be written as follows:
@@ -362,7 +365,19 @@ To be able to convert the DFT to the FFT a multiple of 2 datapoints is required.
 \end{equation}
 #+end_export
 where $\textbf{I}_{32}$ is the Identity matrix. $\textbf{f}_{\text{even}}$ contain the even index elements of $\textbf{f}$, i.e. $\textbf{f}_{\text{even}} = [f_0, f_2,f_4, \dots, f_n]$ and $\textbf{f}_{\text{odd}}= [f_1,f_3,f_5, \dots, f_{n-1}]$. This process is executed recursively. In our example it would continue like this: $\textbf{F}_{32} \to \textbf{F}_{16} \to \textbf{F}_{8} \to \dots$ This is done down to $\textbf{F}_2$ where the resulting computations are excuted on $2 \times 2$ matrices, which is much more efficient than the DFT computations. Of course, it always has be broken down with the same process of taking the even and odd index rows of the resulting vectors. This significantly reduces the required computations to $\mathcal{O}= (n \log(n))$. Important is also that if a series does not have the length $n$ of a multiple of two, it is expedient to just pad the vector with zeros up to the length of the next power of two.
+*** Parseval's Theorem
+<<sec:parseval_thm>>
+One property that the Fourier Transform has is central to the approach in this work. It is called Parseval's Theorem. It states that the integral of square of a function is equal to the integral of the square of its transform. In other words, the $L_2$-norm is preserved. This can be expressed as:
+#+name: eq:pars_thm
+#+begin_export latex
+\begin{equation}
+\int_{-\infty}^{\infty} \lvert \hat{f}(\omega) \rvert^2 d\omega = 2\pi \int_{-\infty}^{\infty} \lvert f(x) \rvert^2 dx.
+\end{equation}
+#+end_export
+
+This property is important to us for multiple reasons. It tells us that angles and lengths are preserved in the frequency domain. This means, the different time series are comparable in the frequency domain they way they are in the time domain. And a second consequence that can be derived from this property is that frequencies with comparatively little power in the power spectrum (see section [[sec:pow_spec]]) can be removed from the representation in the frequency domain and still allow very similar reconstruction of the original time series. We will use this property in only comparing the top n most energetic frequencies of the all the frequencies computed in the Fourier transform (see section [[sec:freq_ranges]]).
 *** Power Spectrum
+<<sec:pow_spec>>
 One important property of time series transformed is the resulting power spectrum or power spectral density (PSD). This concept comes from the signal processing field. The power spectrum denoted as $S_{xx}$ of a time series $f(t)$ describes the from which frequencies a signal is composed. It describes how the power of a sinusoidal signal is distributed over frequency. Even in the case of non-physical processes it is customary to describe it as power spectrum or the energy of a frequency per unit of time cite:press1992numerical.
 
 To obtain the power spectrum we are converting our input vector via the FFT:
@@ -523,7 +538,58 @@ In his citeyear:keogh2003 published paper citeauthor:keogh2003 describe the erro
 - different length of time series (leading to different  frequencies) - ranges solved with logs
 * Methodology
 ** Used Data
-The research in time series has been numerous and focused on various properties of them as well as finding methods to accurately predict them. Aside of forecasting all researched areas are measures of similarity and retrieval of time series.
+- two phases (data transformation and similarity search
+- 
+
+***  Data Transformation
+- FFT with windows
+- identify top frequencies
+- compute other metrics on raw series
+  #+caption: Phase 1a: convert time series pool to frequency space and identify top 5 frequency ranges
+  #+name: fig:phase1a_fft
+  [[./img/process_fft.png]]
+
+***  Simple Statistics
+
+aside simple statistics are computed
+
+#+caption: Phase 1a: compute simple statistical metrics in time series pool for later comparison
+#+name: fig:phase1b_stats
+[[./img/process_simple_stats.png]]
+
+
+*** Frequency Ranges
+<<sec:freq_ranges>>
+We want to be able to compare the closeness of two time series by comparing their frequencies with each other. Due to Parseval's Theorem (see section [[sec:parseval_thm]]) we know that properties of the raw series are partially preserved in the frequency domain. Equation [[eq:pars_thm]] states that the energy contained in the norm of the frequency domain of the transformed time series is equal to the norm of $f(x)$. The energy in the norm of the transform is proportional to the norm of $f(x)$. What we can derive from that is that if there coefficients in the transform that are very small, they can be ignored without meaningfully impacting the result of the integral in the transform. Therefore, a truncated Fourier transform ranked by the magnitude of the coefficients will still remain a very good approximation to its original series. Additionally, because the Fourier transform is a unitary operator, meaning, it preserves lengths and angles in the frequency domain different series are comparable within in the Fourier space. So the distance between two time series is preserved in the frequency domain.
+
+We utilize these properties by selecting the frequencies with the $n$ largest magnitudes for a comparison. We select multiple frequencies and rather than computing the distance between each of the same-ranked frequencies we want to assign them to a range band that can be used to capture whether two time series have frequencies at the same rank that matches within a certain bandwidth. This is an approximation of the distance as frequencies will be determined to be similiar up to a certain distance and then be declared not matching.
+
+A second observation is that lower frequencies have a larger impact on the overall shape of a time series then higher frequencies. Therefore, a match at lower frequencies requires a smaller band than a match at higher frequencies. To accomodate this observation the range band is defined by the set defined on a logarithmic scale
+#+begin_export latex
+\begin{equation}
+R_n = \{ 10^x \in \mathbb{R} \mid x=k \cdot \Delta \; \land \; k \in \left[ \frac{a}{\Delta}, \frac{b}{\Delta}  \right], \quad
+\Delta \in \mathbb{R_+}, \; k, a, b \in \mathbb{Z}\},
+\end{equation}
+#+end_export
+where $\Delta$ is a fixed value defining the step size between the range intervals; $a$ and $b$ are the lower and upper limit of the interval($a < b$). Generally $k \ll a$ and $k$ must be an integer value to delineate the range borders. An example can be seen in figure [[fig:freq_example]]. For the figure a wider step change was chosen and the x-axis shown for both FFT and Hamming was limited to a smaller section so that the individual bins are and their associated values are visible.
+
+#+caption: Frequency ranges definition - FFT example M4 data: M31291 with parameters $a=10^{-4}$ to $b=10^0$ with $=Delta=0.1$
+#+name: fig:freq_example
+[[./img/freq_range_example.png]]
+
+For our work, we define $a=-4$, $b=0$ and $\Delta=0.01$.
+
+*** Matching frequencies between time series
+To match the frequencies of the transformed time series the following mechanism was chosen.
+#+begin_export latex
+\begin{equation}
+M_n(f)= n \mathds{1} R_n(f) \quad f \in \left[\frac{a}{\Delta}, \frac{b}{\Delta}  \right]
+\end{equation}
+#+end_export
+*** Similarity Search
+- convert series in question into frequency space with windows
+- compute statistical metrics
+- match 
 
 **** Forecasting
 In the arena of forecasting the M-competition organized by Prof. Makridakis played a big role in the development of forecasting methods shortly after their inception in 1979.
