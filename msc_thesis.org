@@ -537,27 +537,60 @@ In his citeyear:keogh2003 published paper citeauthor:keogh2003 describe the erro
 - priorities of frequencies (power spectrum)
 - different length of time series (leading to different  frequencies) - ranges solved with logs
 * Methodology
-** Used Data
-- two phases (data transformation and similarity search
-- 
+** General Overview
+The main idea of our method is to define the underlying frequencies as their most important property to identify similar time series. In a second step additional statistical metrics are used to reduce the number of similar series such that the user of the application can decide which for metrics the comparison should be executed.
 
-***  Data Transformation
-- FFT with windows
-- identify top frequencies
-- compute other metrics on raw series
+The whole process consists of two general phases with further subdivisions of which only the second should be considered for computing the run-time of this method. Phase I is a  prepartory step required to set up the pool of time series which serve as the database from which the closest matches are identified. Phase I consists of:
+1) Data Transformation (see section [[sec:data_trnf]])
+2) Statistical Metrics Computation (see section [[sec:stat_mtr]])
+ 
+Phase II describes how a single series considered as template series is matched against all available series in the database (see section [[sec:match_ts]]).
+
+*** Data Transformation
+<<sec:data_trnf>>
+The preparation of the time series pool is done by executing the data transformation for all time series and computing the statistical metrics for all time series (section [[sec:stat_mtr]]). The data transformation is based on the Fast Fourier transform (FFT) and is executed multiple times for each series with multiple transformation types: (1) FFT with original data, (2) FFT with applied Hamming window on each time series, and (3) FFT with Welch's method and a Hamming window applied on each sub series for each time series. For a shorthand in the following "FFT" or "regular FFT" is used to describe the Fast Fourier transform without modification to the original data, "Hamming" is used to describe the FFT with a Hamming window applied to the original data, and "Welch" is used to describe the Fast Fourier transformation while applying Welch's method with a Hamming window on each subseries. The results from all three transformations are kept separately for later comparison to the template series.
+
+After the transformations have been created only the top K (in our case top 5) frequencies, meaning the 5 frequencies with the highest magnitude in the frequency domain are retained and frequency range intervals are created (see section [[sec:freq_ranges]]). The top K frequencies are then associated with their respective frequency interval (see section [[sec:freq_assn]]). This process is depicted visually in figure [[fig:phase1a_fft]].
+
   #+caption: Phase 1a: convert time series pool to frequency space and identify top 5 frequency ranges
   #+name: fig:phase1a_fft
   [[./img/process_fft.png]]
 
-***  Simple Statistics
+With the completion of this step we have each time series associated with a list of K frequency intervals orded from lowest magnitude to highest magnitude associated with the respective series. So each time series is described by 5 data points irrespective of the length of the original series. Aside from other benefits this already hints at the fact that comparing 5 datapoints per comparison will be executed significantly faster than comparing hundreds or thousands of data points.
 
-aside simple statistics are computed
+*** Statistical metrics computation
+<<sec:stat_mtr>>
+Describing a time series only by the top K frequency intervals in the Fourier domain is not sufficient to adequately describe the properties of a time series for matching it with other series. This, in part, is due to the fact that the magnitude of the particular frequency is not taken into account. In order to accomodate the possibility to use other well understood and common metrics we chose to compute additional statistical measures for the raw series and add them as additional datapoints describing the time series in the pool.
 
 #+caption: Phase 1a: compute simple statistical metrics in time series pool for later comparison
 #+name: fig:phase1b_stats
 [[./img/process_simple_stats.png]]
 
+As shown in figure [[fig:phase1b_stats]] the additional metrics are computed on the original time series, consisting of: (1) trend, (2) mean, (3) median, (4) standard deviation, (5) quantiles, and (6) minimum and max values. These metrics will be used flexibily to find similar series that match singular or multiple criteria. In essence the prior step of finding the underlying frequencies ensures that the time series follow similar periodicity or seasonality. The statistical metrics contain additional information that allow to find time series in the pool that, for example have similar value distribution through the standard deviation, etc and therefore match the users needs for the particular use case.
 
+The trend mentioned above is not a strict statistical measure but the slope $m$ from the fitted linear equation:
+#+begin_export latex
+\begin{equation}
+f(x) = m x + b
+\end{equation}
+#+end_export
+
+
+Noteworthy is also the fact that the time complexity of the statistical metrics does
+
+
+*** Matching of time series
+<<sec:match_ts>>
+After the completion of phase I the time series pool is ready for use. When a new time series is to be matched against the pool first the data transformation and computation of statistical metrics
+
+
+One important component among the statistical metrics is the trend. It is found by utilizing a linear fit model. This metric in our algorithm is used to rule out time series from the pool that have an opposing trend from the result set. For example if the series for which we want to matching series in the pool has a negative trend, all series with a positive trend from the result set are ruled out before the other statistical metrics are utilized. However, if the trend for the investigation at hand is not relevant this step can easily be removed.
+
+In our algorithm for each matching series based on the frequencies and having the same trend the delta of all other stastical metrics is computed and then ranked from smallest difference to highest difference. This step is executed without regard for the transform method used. The ranked difference between the template time series and the pool series is then used to select the most matching series.
+
+
+
+** Frequency Concepts
 *** Frequency Ranges
 <<sec:freq_ranges>>
 We want to be able to compare the closeness of two time series by comparing their frequencies with each other. Due to Parseval's Theorem (see section [[sec:parseval_thm]]) we know that properties of the raw series are partially preserved in the frequency domain. Equation [[eq:pars_thm]] states that the energy contained in the norm of the frequency domain of the transformed time series is equal to the norm of $f(x)$. The energy in the norm of the transform is proportional to the norm of $f(x)$. What we can derive from that is that if there coefficients in the transform that are very small, they can be ignored without meaningfully impacting the result of the integral in the transform. Therefore, a truncated Fourier transform ranked by the magnitude of the coefficients will still remain a very good approximation to its original series. Additionally, because the Fourier transform is a unitary operator, meaning, it preserves lengths and angles in the frequency domain different series are comparable within in the Fourier space. So the distance between two time series is preserved in the frequency domain.
@@ -567,11 +600,11 @@ We utilize these properties by selecting the frequencies with the $n$ largest ma
 A second observation is that lower frequencies have a larger impact on the overall shape of a time series then higher frequencies. Therefore, a match at lower frequencies requires a smaller band than a match at higher frequencies. To accomodate this observation the range band is defined by the set defined on a logarithmic scale
 #+begin_export latex
 \begin{equation}
-R_n = \{ 10^x \in \mathbb{R} \mid x=k \cdot \Delta \; \land \; k \in \left[ \frac{a}{\Delta}, \frac{b}{\Delta}  \right], \quad
+\Omega^{\prime}_n = \{ \omega^{\prime} = 10^\chi \in \mathbb{R} \mid \chi=k \cdot \Delta \; \land \; k \in \left[ \frac{a}{\Delta}, \frac{b}{\Delta}  \right], \quad
 \Delta \in \mathbb{R_+}, \; k, a, b \in \mathbb{Z}\},
 \end{equation}
 #+end_export
-where $\Delta$ is a fixed value defining the step size between the range intervals; $a$ and $b$ are the lower and upper limit of the interval($a < b$). Generally $k \ll a$ and $k$ must be an integer value to delineate the range borders. An example can be seen in figure [[fig:freq_example]]. For the figure a wider step change was chosen and the x-axis shown for both FFT and Hamming was limited to a smaller section so that the individual bins are and their associated values are visible.
+where $\omega^{\prime}$ denotes the identified frequency range and  $\Delta$ is a fixed value defining the step size between the range intervals; $a$ and $b$ are the lower and upper limit of the interval($a < b$). Generally $k \ll a$ and $k$ must be an integer value to delineate the range borders. An example can be seen in figure [[fig:freq_example]]. For the figure a wider step change was chosen and the x-axis shown for both FFT and Hamming was limited to a smaller section so that the individual bins are and their associated values are visible.
 
 #+caption: Frequency ranges definition - FFT example M4 data: M31291 with parameters $a=10^{-4}$ to $b=10^0$ with $=Delta=0.1$
 #+name: fig:freq_example
@@ -579,17 +612,30 @@ where $\Delta$ is a fixed value defining the step size between the range interva
 
 For our work, we define $a=-4$, $b=0$ and $\Delta=0.01$.
 
-*** Matching frequencies between time series
-To match the frequencies of the transformed time series the following mechanism was chosen.
+*** Assigning frequencies to an interval
+<<sec:freq_assn>>
+The top K frequencies need to be assigned to their respective interval. The association is done via this mechanism:
 #+begin_export latex
 \begin{equation}
-M_n(f)= n \mathds{1} R_n(f) \quad f \in \left[\frac{a}{\Delta}, \frac{b}{\Delta}  \right]
+M_n(\omega)= n \mathds{1} \Omega^{\prime}_n(\omega) \quad \omega \in \left[\frac{a}{\Delta}, \frac{b}{\Delta}  \right].
 \end{equation}
 #+end_export
-*** Similarity Search
-- convert series in question into frequency space with windows
-- compute statistical metrics
-- match 
+with $\omega$ representing one of the top K frequencies identified via the FFT and $\omega^{\prime}$ the respective representation in the frequency ranges set $\Omega^{\prime}$. As an example, imagine a frequency identified via the FFT of $\omega=0.003$ with $a=-3$,$b=0$, and $\Delta=0.1$. The value of $\omega$ falls into the interval $[10^{-2.6}, 10^{-2.5}]$. If $\Omega^{\prime}$ is indexed from 0, the result will be $M_n(\omega) = 6$.
+
+*** Matching frequencies between time series and ranking results
+To match the frequencies between time series a mechanism is required that considers the rank of the match within the top K frequencies. We use the another logarithmic scale with base 10 to signify the importance of the match which can later be used for ranking the results with
+#+begin_export latex
+\begin{equation}
+score = \sum_{k=0}^{K-1} 10^{k}\mathds{1}(\omega_{k}^{\prime \,(S_1)}) = \omega_k^{\prime \, (S_2)}
+\end{equation}
+#+end_export
+where $\omega_{k}^{\prime \, (Sn)}$ represents the k^th ranked frequency band $\omega^{\prime}$ of time series $S_n$. The score is computed for each time series in the time series pool for each transform, meaning regular FFT, FFT with a Hamming window, and FFT with Welch's method using a Hamming window.
+
+For each transform type all series are ranked based on their matching score in descending order. A higher score means that the more dominant frequencies in the series match. In the algorithm all time series from the pool that have the highest match score per transform type are selected for further processing that utilize the statistical metrics.
+** Statistical metrics
+To further reduce the number of matching series additional simple statistical metrics are used to identify the closest matches.
+*** Investigated metrics
+.
 
 **** Forecasting
 In the arena of forecasting the M-competition organized by Prof. Makridakis played a big role in the development of forecasting methods shortly after their inception in 1979.
