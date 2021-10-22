@@ -6,6 +6,9 @@
 #+OPTIONS: num:3
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{mathtools}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \DeclareMathOperator*{\argmin}{arg\,min}
+#+LATEX_HEADER: \DeclareMathOperator*{\argmax}{arg\,max}
 #+LATEX_HEADER: \usepackage{dsfont}
 #+LATEX_HEADER: \usepackage[margin=2.5cm]{geometry}
 #+LATEX_HEADER: \usepackage[font=small, labelfont=bf, margin=1cm]{caption}
@@ -15,6 +18,7 @@
 #+LATEX_HEADER: \usepackage[natbib=true,citestyle=ieee, maxcitenames=2, mincitenames=1]{biblatex} \DeclareFieldFormat{apacase}{#1} \addbibresource{./bibliography/593_thesis.bib}
 #+LATEX: \newcommand{\compconj}[1]{\overline{#1}}
 #+LATEX: \newcommand{\euler}{e}
+
 
 
 * Purpose
@@ -576,18 +580,35 @@ f(x) = m x + b
 #+end_export
 
 
-Noteworthy is also the fact that the time complexity of the statistical metrics does
-
-
+Noteworthy is also the fact that the time complexity of the statistical metrics does not exceed $\mathcal{O}(n \log(n))$. It of course depends on the sorting algorithms used for the computation. Assumming quicksort or mergesort this holds true. This observation also includes the computation of the linear fit which is $\mathcal{O}(c^2 n)$ with $c$ representing the number of features which. For our case $c=1$, because we only have one feature or variable; hence time complexity for linear fit reduces to $\mathcal{O}(n)$. This observation let's us conclude that the computation for the statistical metrics will be feasible during the similarity search for the template time series even if $n$ is very large.
 *** Matching of time series
 <<sec:match_ts>>
-After the completion of phase I the time series pool is ready for use. When a new time series is to be matched against the pool first the data transformation and computation of statistical metrics
+After the completion of phase I the time series pool is ready for use. When a new time series is to be matched against the pool first phase I for the individual time series needs to be executed as well, meaning the data transformation into frequency space and computation of the statistical metrics. First, for each of the of the Fourier transform types (regular, Hamming, Welch) the highest matching score (see section [[sec:match_score]]) between the template time series $S_t$ and each of series in the pool $S_n$ is computed via:
 
+#+begin_export latex
+\begin{equation}
+\argmax_{score\, \in \, S_{N}^{(type)}} f(score_{S_i}^{(type)}) = score_{S_i}^{(type)},
+\end{equation}
+#+end_export
+
+where $type$ refers to the FFT type. This reduces the pool of the matching series to all time series from the pool per FFT type that are equivalent to the highest matching score for that transformation type. Next an additional limitation is applied that restricts the result set of matching series (named $A$) to the requirement of having a trend that must match in direction
+
+#+begin_export latex
+\begin{equation}
+A_{trend} = \{S_{i} \in S_{N} \mid \mathds{1}\left( \frac{m_{S_t}}{-1} = \frac{m_{S_{i}}}{-1} \right)  \}
+\end{equation}
+#+end_export
 
 One important component among the statistical metrics is the trend. It is found by utilizing a linear fit model. This metric in our algorithm is used to rule out time series from the pool that have an opposing trend from the result set. For example if the series for which we want to matching series in the pool has a negative trend, all series with a positive trend from the result set are ruled out before the other statistical metrics are utilized. However, if the trend for the investigation at hand is not relevant this step can easily be removed.
 
-In our algorithm for each matching series based on the frequencies and having the same trend the delta of all other stastical metrics is computed and then ranked from smallest difference to highest difference. This step is executed without regard for the transform method used. The ranked difference between the template time series and the pool series is then used to select the most matching series.
 
+
+In our algorithm for each matching series based on the frequencies and having the same trend the delta of all other stastical metrics is computed and then ranked from smallest difference to highest difference. This step is executed without regard for the transform method used. The ranked difference between the template time series and the pool series is then used to select the most matching series
+#+begin_export latex
+\begin{equation}
+\argmin_{S_i\, \in\, S_N} f(S_i):= \lvert\phi_{S_t} - \phi_{S_i}\rvert
+\end{equation}
+#+end_export
 
 
 ** Frequency Concepts
@@ -623,6 +644,7 @@ M_n(\omega)= n \mathds{1} \Omega^{\prime}_n(\omega) \quad \omega \in \left[\frac
 with $\omega$ representing one of the top K frequencies identified via the FFT and $\omega^{\prime}$ the respective representation in the frequency ranges set $\Omega^{\prime}$. As an example, imagine a frequency identified via the FFT of $\omega=0.003$ with $a=-3$,$b=0$, and $\Delta=0.1$. The value of $\omega$ falls into the interval $[10^{-2.6}, 10^{-2.5}]$. If $\Omega^{\prime}$ is indexed from 0, the result will be $M_n(\omega) = 6$.
 
 *** Matching frequencies between time series and ranking results
+<<sec:match_score>>
 To match the frequencies between time series a mechanism is required that considers the rank of the match within the top K frequencies. We use the another logarithmic scale with base 10 to signify the importance of the match which can later be used for ranking the results with
 #+begin_export latex
 \begin{equation}
