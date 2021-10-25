@@ -523,6 +523,7 @@ An example of time series split via Welch's method with $K=4$ can be seen in fig
 - priorities of frequencies (power spectrum)
 - different length of time series (leading to different  frequencies) - ranges solved with logs
 * Methodology
+<<sec:methodology>>
 ** General Overview
 The main idea of our method is to define the underlying frequencies as their most important property to identify similar time series. In a second step additional statistical metrics are used to reduce the number of similar series such that the user of the application can decide which for metrics the comparison should be executed.
 
@@ -639,22 +640,7 @@ score = \sum_{k=0}^{K-1} 10^{k}\mathds{1}(\omega_{k}^{\prime \,(S_1)}) = \omega_
 where $\omega_{k}^{\prime \, (Sn)}$ represents the k^th ranked frequency band $\omega^{\prime}$ of time series $S_n$. The score is computed for each time series in the time series pool for each transform, meaning regular FFT, FFT with a Hamming window, and FFT with Welch's method using a Hamming window.
 
 For each transform type all series are ranked based on their matching score in descending order. A higher score means that the more dominant frequencies in the series match. In the algorithm all time series from the pool that have the highest match score per transform type are selected for further processing that utilize the statistical metrics.
-** Statistical metrics
-To further reduce the number of matching series additional simple statistical metrics are used to identify the closest matches.
 
-
-*** Investigated metrics
-.
-
-**** Forecasting
-In the arena of forecasting the M-competition organized by Prof. Makridakis played a big role in the development of forecasting methods shortly after their inception in 1979.
-# add paper and verify dates
-One of the aspects that has been correct up until the 5th installment of the M-competition is that statistical methods in forecasting have outperformed more complex machine learning methods. So learning algorithms did not benefit sufficiently from learning from multiple series to generate more accurate point predictions and prediction intervals compared to the statistics-based alternatives.
-
-One interesting question in this area is whether clustering of time series that have similar properties and training algorithms per cluster of "similar" series can help simplify the learning process for machine learning methods and in consequence improve their performance in future competitions.
-
-# reference to relevant chapter
-However, expressing similarity for time series is a challenging questions with respect to which metrics to utilize, time complexity as well as limiting assumptions that need to be made for time series.
 ** Main contribution of the thesis
 - transformation into Fourier-space
 - transfer frequencies into frequency range band with increasing range width (using log scale)
@@ -667,7 +653,7 @@ However, expressing similarity for time series is a challenging questions with r
 - ts decomposition for trend estimation (requires parameter for period) -> then best line fit for slope of the time series
 - computation of deltas for each series to search with statistics and slope of all other time series (review computational complexlity)
 - ranking of matching series based highest frequency range match and ONE statistic
-**  Preprocessing
+** Preprocessing
 - M4 data wide format vs. long format
 ** Parallelization
 - computation times
@@ -705,7 +691,7 @@ In his citeyear:keogh2003 published paper citeauthor:keogh2003 describe the erro
 <<sec:data_properties>>
 In order to be able to set parameters for the the utilized methods in the data transformation (see section [[sec:data_trnf]]) and the computation of the statistical metrics (see section [[sec:stat_mtr]]) an understanding of the used data is necessary. Please note, that the decision for parameters was done based solely, on the M4 competition data set (section [[sec:m4_data]]) and the UCR data set was only introduced during the formal evalution (section [[sec:ucr_data]]).
 
-The first analyzed aspect is the length of the time series in the two repositories. In figure [[m4_ucr_len_dist]] can see that the lengths of the two repositories time series have different distributions. For the M4 dataset has the wider range of $[13, 9919]$ while the UCR dataset is distributed between a length of $[8, 2844]$. For the M4 dataset the data is more concentrated around the length of roughly 100 data points and a second peak at 320 data points. Further there are some time series with longer series concentrated around 4000 datapoints.The mean is 240 datapoints and the median is 97, meaning there are some outliers on the longer side of the distribution. This is confirmed by the boxplot of the lenghts of the two repositories (see figure [[m4_ucr_len_boxp]]). The UCR repository doesn't have as many short or long series compared to M4. The main concentration is simlilar to M4, with a bimodal distribution around roughly 100 data points and a second higher peak at 650-700 datapoints. But the lengths are more concentrated in that region, confirmed by lower standard deviation of the UCR dataset compared to the M4 data.
+The first analyzed aspect is the length of the time series in the two repositories. In figure [[fig:m4_ucr_len_dist]] can see that the lengths of the two repositories time series have different distributions. For the M4 dataset has the wider range of $[13, 9919]$ while the UCR dataset is distributed between a length of $[8, 2844]$. For the M4 dataset the data is more concentrated around the length of roughly 100 data points and a second peak at 320 data points. Further there are some time series with longer series concentrated around 4000 datapoints.The mean is 240 datapoints and the median is 97, meaning there are some outliers on the longer side of the distribution. This is confirmed by the boxplot of the lenghts of the two repositories (see figure [[fig:m4_ucr_len_boxp]]). The UCR repository doesn't have as many short or long series compared to M4. The main concentration is simlilar to M4, with a bimodal distribution around roughly 100 data points and a second higher peak at 650-700 datapoints. But the lengths are more concentrated in that region, confirmed by lower standard deviation of the UCR dataset compared to the M4 data.
 #+caption: Histogram / KDE of time series length in repositories
 #+name: fig:m4_ucr_len_dist
 #+attr_latex: 300px
@@ -715,14 +701,13 @@ The UCR data is also impacted by a few outliers leading to a higher mean than me
 #+caption: Boxplots of M4 and UCR time series length
 #+name: fig:m4_ucr_len_boxp
 [[./img/ts_len_m4_ucr_boxp.png]]
-These observations are interesting for multiple reasons. For one, they will reveal whether the devised method for finding similar time series works equally well irrespective of the length of the underlying pool time series. Furthermore, the data can be used to illustrate the compression levels achieved in the computation of the similar time series via the FFT. For the M4 dataset with a $\mu=240%$, the reduction to the top 5 frequencies for the comparision with other time series leads to 60x reduction in data points required for comparison. The longest series in M4 is reduced by factor 1980. Aside from the algorithm being in a favorable time complexity class of $\mathcal{O}(n\log(n))$ also a constant term of very few datapoints is required for the comparison in the Fourier domain. The compression is even more favorable in the UCR dataset. The $\mu=401.3$ datasets lead to a compression factor of 80x on average.
+
+These observations are interesting for multiple reasons. For one, they will reveal whether the devised method for finding similar time series works equally well irrespective of the length of the underlying pool time series. Furthermore, the data can be used to illustrate the compression levels achieved in the computation of the similar time series via the FFT. For the M4 dataset with a $\mu=240$, the reduction to the top 5 frequencies for the comparision with other time series leads to 60x reduction in data points required for comparison. The longest series in M4 is reduced by factor 1980. Aside from the algorithm being in a favorable time complexity class of $\mathcal{O}(n\log(n))$ also a constant term of very few datapoints is required for the comparison in the Fourier domain. The compression is even more favorable in the UCR dataset. The $\mu=401.3$ datasets lead to a compression factor of 80x on average.
 
 The next area of analysis is the value distribution of the individual series.
 
 
 Another interesting area of comparison is the distribution of the two data repositories in the Fourier domain.
-
-
 * Exploratory Data Study
 - what do results look like
 
@@ -730,11 +715,117 @@ Another interesting area of comparison is the distribution of the two data repos
   #+NAME: fig:freq_dist_ucr
   [[./img/freq_dist_ucr.png]]
 * Formal Evaluation
+The formal evaluation covers the following aspects aims to establish a formal comparision between the algorithm presented in this work compared to the widely used and generally accepted method of Dynamic Time Warping for finding similar time series. We will introduce the evalution method chosen, discuss the consequences of the different time complexities of the algorithms, and compare the accomplished results via the two methods.
+
+** Evalution Method
+To evaluate the performance of the algorithm proposed in this work the following procedure was applied to the UCR time series data set. To generate the results with our the method the whole data set was transformed and augmented as described in section [[sec:methodology]]. After the transformation and stratified random sample of 1421 was chosen from the UCR test dataset, such that each different data category is represented.
+
+The resulting data test time series have then been processed by both algorithms Dynamic Time Warping (DTW) and the algorithm described in section [[sec:methodology]]. The DTW method has been used been introduced by citeauthor:giorgino2009 which was implemented via a statistical software package in R cite:giorgino2009. The only change to the standard call of the method was the utilization of the option to only compute the distance and not generate any data for plotting the data to improve the runtime.
+** Time complexity and duration
+Due to the different time complexities of the underlying algorithms two different computers were used for the execution. Both algorithms were parallelized to allow to utilize more powerful compute infrastructures. The FFT-based algorithm was executed on a personal laptop 8 Intel-based CPU, 16GB RAM machine that simulataneously also ran other user-based activities. For the DTW a cloud-based machine with 32 CPU and 64 GB of RAM was chosen. Comparing the actual runtimes on these different hardwares and different operating system is not a good scientific measure of performance but is provided here to give an indication of the class difference between the two algorithms. The DTW required 2.9 days of execution time on the cloud hardware, compared to XX minutes for the FFT-based algorithm. The DTW method was only executed once, therefore no repeated measurements have been taken to confirm the execution time of the entire dataset. However, repeated measurements have been taken to evalute the performance of finding the best match for a single template series in the UCR time series pool. The results vary depending on the length of the time series but average 180 seconds for the UCR time series pool in our Python implementation. This operation is not parallelized but is executed on a single core. For the FFT-based algorithm finding the results for single template series across the UCR dataset averages..
+
+When looking at time complexity of the two algorithms multiple things need to be considered. For Dynamic Time Warping the case is straightforward, because only $\mathcal{O}(m*n)$ needs to be considered for the number of $l$ series in the time series pool for:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(\sum_{i=0}^l (m_i*n))
+\end{equation}
+#+end_export
+The similarity search proposed in this work has two multiple components consisting of the transformation of the time series, computing the summary statistics and running the comparison. The transformation of the series to the frequency domain is combined with the computation of the summary statistics including also the linear fit to find the slope of the series. It can be noted as:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(o (n \log n) + p n)
+\end{equation}
+#+end_export
+with $p$ being the number of computations that have complexity $n \log n$ and $p$ the number of computations having complexity $n$. Of course, the constants are ignored and only the worst term is kept for the asymptotic behavior of this step resulting in:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(n \log n)
+\end{equation}
+#+end_export
+For the second step we rank compute the matching score of the frequencies. This is special insofar as the time complexity linear with $\mathcal{O}(n)$ and $n$ being the number of frequencies to be compared. However, for our analysis this $n$ is constant as we are only comparing the top $k$ frequencies. This step is done for all series in the time series pool leading to:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(\sum_{i=0}^l (k))
+\end{equation}
+#+end_export
+Next the delta's between the template time series and each pool time series needs to be computed:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}((o+p-1)l)
+\end{equation}
+#+end_export
+with $o$ and $p$ still representing the number of summary statistics in each time complexity class and $-1$ because the comparison of frequencies is already captured. The last step is to filter and sort the result set which can be described by the time complexity of a sorting algorithm:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(l \log l)
+\end{equation}
+#+end_export
+Combining these steps, removing constants and keeping the worst component per variable the time complexity of our similarity search can be described by:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(l \log l)
+\end{equation}
+#+end_export
+Looking at the individual parts it makes sense that our method is most impacted by the size of the time series pool whereas DTW is impacted by both the size of the pool and the length of the series to be compared.
+
+To be able to visualize the impact of these results we simplify the time complexity of DTW with the assumption that $m_i = n$, meaning that all time series have the same length. This changes the time complexity of DTW to:
+#+begin_export latex
+\begin{equation}
+\mathcal{O}(l n^2)
+\end{equation}
+#+end_export
+We now have only two input variables for the time complexity with $n$ being the number of data points and $l$ the number of series in the pool. The visualization of FFT-based algorithm only has $l$ as input variable and could be done with a 2d-dimensional plot. However, to be able to compare with DTW will print it separately with 3D plot to reveal its general shape (see figure [[fig:tc_fft]]). We see the log-linear growth of the compute time that is respective of the length of $n$.
+
+#+caption: Time complexity of our FFT-based similarity search
+#+name: fig:tc_fft
+[[./img/tc_fft.png]]
+
+When visualizing the time complexity of our similarity search algorithm (orange) together with the time complexity of the DTW algorithm (blue) the difference becomes obvious the more we approach the actual values that represent the UCR data set, meaning $n = 401$ and $l \approx 65000$.
+#+caption: Time complexity of DTW and FFT-based algorithm
+#+name: fig:tc_dtw_fft
+[[./img/tc_dtw_fft.png]]
+
+** UCR results overview
+** Window Type
+winner of summary statistic by window type
+** Comparision DTW
+Between the results of Dynamic Time Warping
+
+Some of the unintended side-effects can be mitigated. For example with frequencies and chosen summary statistic matching one may have a resulting time series from the pool that has a vastly different length compared to the template time series. This can be mitigated by imposing another restriction on the result set of the resulting series having to be within some treshold of length compared to the template. The DTW method mitigates this due to the fact that higher length series will lead to higher overall distance scores and hence will be ranked lower compared to shorter series whose points are also in a similar vicinity compared to the template series.
+
+Another side effect of our proposed method is the handling of patterns. Consider a template series like in figure [[fig:multi_pattern]] that has a particular dominant feature like the tooth shape visible in the template series. In the match that considers the median (d_q50) as summary statistic we see an interesting result regarding Welch's method. Due to the fact that Welch's method cuts the time series into multiple segments, applies a window and then averages the found frequencies one can see how a series that has the same dominant shape but multiple occurences of it produces a very similar result in the frequency domain. The median in this example must also have a similar value in both series as the ranges are similar. The second tooth in the pool series is just a repeption of the first, therefore the median is not affected significantly. And in consequence one receives a result that is 
+
+When matching frequencies this will also include series that have the same pattern but multiple occurences of the pattern. Now if one chooses a summary statistic that does not consider metrics like the mean, median or standard deviation but something that doesn't consider these averages of values but rather minima, maxima or slopes one can find a result that has repetitions of this feature, and has them in different places compared to the template series.
+
+#+caption: Repeating Pattern example - UCR: PigAirwayPressure - 127
+#+name: fig:multi_pattern
+[[./img/dtw_comp_res/PigAirwayPressure_127_ucr_dtw_fft_comp.png]]
+
+Now whether the result is desirable depends on the context of the analysis or subsequent process the time series are to be utilized for.
+
+how often same class for each summary statistic
+how often same result for each summary statistic
+
+that due to the fact that matching occurs first on the frequencies alone it may lead to results where 
+
+
+
+Therefore, our proposed algorithm can be used to be
+
+
 - (maybe ) improvement in forecasting approach
 - find dataset with ground truth and compare DTW to this approach
 - Distance metrics
 - time complexity
 * Conclusion & future work
+
+Due to the quality and the runtime of our algorithm it is feasible to use this method for real-time search engine that not only generates meaningful results of similar series but also allows flexibility in modifying the results in way that optimizes for particular statistical metrics. They can be chosen based on the subsequent data analysis or forecasting task at hand. Furthermore, some of the shortcomings of DTW are also
+
+Beneficial for the FFT-based algorithm is its scale-invariance. The Fourier domain is always reduced to the top k frequencies in the power spectrum, therefore the time compare two series is constant irrespective of the length. This a great advantage the longer the series become.
+
+The downside of our proposed algorithm includes that there is no singular particular metric that allows to evaluate the quality of the results, compared to Dynamic Time Warping that provides an  absolute measure of similarity that can be ranked to all other time series.
+
+
 ** Successes
 ** Failures
 ** Flaws
