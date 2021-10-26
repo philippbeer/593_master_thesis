@@ -729,9 +729,13 @@ The review of the ranked frequency distributions does not reveal any information
 The formal evaluation covers the following aspects aims to establish a formal comparision between the algorithm presented in this work compared to the widely used and generally accepted method of Dynamic Time Warping for finding similar time series. We will introduce the evalution method chosen, discuss the consequences of the different time complexities of the algorithms, and compare the accomplished results via the two methods.
 
 ** Evalution Method
-To evaluate the performance of the algorithm proposed in this work the following procedure was applied to the UCR time series data set. To generate the results with our the method the whole data set was transformed and augmented as described in section [[sec:methodology]]. After the transformation and stratified random sample of 1421 was chosen from the UCR test dataset, such that each different data category is represented.
+To evaluate the performance of the algorithm proposed in this work the following procedure was applied to the UCR time series data set. To generate the results with our the method the whole data set was transformed and augmented as described in section [[sec:methodology]]. After the transformation and stratified random sample of 1420 was chosen from the UCR test dataset, such that each different data repository inside UCR dataset is represented.
 
-The resulting data test time series have then been processed by both algorithms Dynamic Time Warping (DTW) and the algorithm described in section [[sec:methodology]]. The DTW method has been used been introduced by citeauthor:giorgino2009 which was implemented via a statistical software package in R cite:giorgino2009. The only change to the standard call of the method was the utilization of the option to only compute the distance and not generate any data for plotting the data to improve the runtime
+The resulting data test time series have then been processed by both algorithms Dynamic Time Warping (DTW) and the algorithm described in section [[sec:methodology]]. The DTW method has been used been introduced by citeauthor:giorgino2009 which was implemented via a statistical software package in R cite:giorgino2009. The only change to the standard call of the method was the utilization of the option to only compute the distance and not generate any data for plotting the data to improve the runtime. The random sample was run over the time series pool of all training data irrespective of the category the data was chosen from. For the DTW method the closest match from the time series pool was recorded. This results in one closest match per time series from the sample.
+
+For the FFT-based method to find similar time series the procedure was similar in that each time series from the sample was compared to all series from the time series pool of all training time series. Because there are multiple metrics on the window side with the regular FFT, Hamming and Welch's method and the different summary statistics the lowest result for each combination was recorded. To illustrate, each time series converted to each window type, for example Hamming each KPI (mean, median, standard deviation, etc) was recorded based on the closest $\Delta$ value. So per time series and window type 8 minimized KPI values were recorded.
+
+With these results the performance evaluation was conducted.
 ** Time complexity and duration
 Due to the different time complexities of the underlying algorithms two different computers were used for the execution. Both algorithms were parallelized to allow to utilize more powerful compute infrastructures. The FFT-based algorithm was executed on a personal laptop 8 Intel-based CPU, 16GB RAM machine that simulataneously also ran other user-based activities. For the DTW a cloud-based machine with 32 CPU and 64 GB of RAM was chosen. Comparing the actual runtimes on these different hardwares and different operating system is not a good scientific measure of performance but is provided here to give an indication of the class difference between the two algorithms. The DTW required 2.9 days of execution time on the cloud hardware, compared to 22.5 minutes for the FFT-based algorithm. The DTW method was only executed once, therefore no repeated measurements have been taken to confirm the execution time of the entire dataset. However, repeated measurements have been taken to evalute the performance of finding the best match for a single template series in the UCR time series pool. The results vary depending on the length of the time series but average 180 seconds for the UCR time series pool in our Python implementation. This operation is not parallelized but is executed on a single core. For the FFT-based algorithm computing the results for single template series across the UCR dataset averages given all windows takes roughly 0.016 seconds on the 8-core machine. The results for the entire test set was run with parallelization but the search for one template series is executed on a single core. The difference amounts to an performance difference factor of roughly 11.250.
 
@@ -799,9 +803,30 @@ When visualizing the time complexity of our similarity search algorithm (orange)
 It is obvious that performance of our proposed method significantly outperforms the DTW-based method. In real-world scenarios this already true for very small values of $n$ and $l$.
 
 ** UCR results overview
+The UCR dataset provides a unique property that is interesting for a formal evaluation. Each time series in a category, for example ECG5000 in the test data is assigned a class value. This class value is determined via a baseline classification result that is determined via 1-Nearest Neighbor classifier cite:hoang2019. Per category in the training dataset each time series is assigned a class value. If that time series is the closest for the time series in the test dataset it is associated with that class value. This distance measure used for this class attribute is the Euclidean Distance (ED) introduced in [[sec:ed]].
+
+For Dynamic Time Warping in 63% of the cases (889 out of 1420) from the random sample was found within in the same data category. And from those within the same category  74% of the time series (658/889) where attributed to the same class. This result makes sense as DTW is closely related to the Euclidean Distance which forms the basis of class association in the 1-NN computation. 112 categories of 128 original categories in the random sample have a match within the same category.
+
+The results for the FFT-based time similarity have some similarities to the DTW results. The random sample of 1420 time series taken from the test set produced 746 cases of the same data category as result for the best window type and KPI combination (Welch and standard deviation). Recall, that for with the FFT-based method each series is transformed via 3 different window types and augmented with 8 summary statistic KPIs available for selection. This produces 24 results per time series from the random sample. This is indicative of an observation one can make when checking multiple samples of the matching series (see [[sec:vis_res]]). Very often the series found via the FFT-based method have a very similar shape and value level to template series and are comparable to the results achieved via the DTW.
+
+#+caption: Number of matched data categories in UCR repository
+#+name: fig:matched_cats_ucr
+[[./img/fft_matched_cats.png]]
+
+Noteable is the performance difference between the different window types. Welch's method FFT far outperforms the other two methods. Not surprising is the fact that the summary statistic standard deviation of the series has a high success rate because it reflects a characteristic is likely similar with series coming from similar distributions. Also interesting to note is that the quantile information as a whole is more indicative of the same data category than the mean.
+
+Where the results between the DTW and our approach differ are in the identification of the classes assigned to the time series. In figure [[fig:matched_cls_ucr]] one can observe the distribution of matched classes of time series. Of course, this requires that also the data categories are matched. With 39 matches for the combination of Welch's method and the series mean as summary statistic this results only in a 7% match of the 585 matches from this analytics combination. This result is not surprising. DTW resembles the mechanism of class identification with 1-NN via Euclidean Distance much more than a matching a transformed representation based on sine and cosine functions augmented with further statistical measures. Analogous to the data categories, Welch's method is most adequate for finding the same class when contrasted with the other window functions.
+
+#+caption: Number of matched classes in UCR repository
+#+name: fig:matched_cls_ucr 
+[[./img/fft_matched_cls.png]]
+
+A visual inspection of the results produced by the different windows and summary statistics (see [[sec:vis_res]]) shows that the overall performance of finding similar time series is very good with some mishaps. For example, while most of the metrics in figure [[fig:chinatown283]] are very good the combination of the trend $\Delta m$ matches a completely inadequate series. The performance gets worse, as the frequency values required to represent the series in FFT space increase. This is also not surprising due to logarithmic range width that increases with higher frequencies. The data analysis in section [[sec:data_properties]] showed the increase of frequencies at the low and high end. Possible remedies could be linear range setup that increase the compute time, or using classical clustering metrics like Euclidean distance of the ranked frequencies, or creating a range that is sensitive on the low and high boundaries of the frequency range. Another interesting observation are figures [[fig:facefour5]] and [[fig:mallat1407]]. Here the mechanism of the FFT becomes visible. One can observe that the general patterns of the wave form are matched but the exact place of their occurrance on the domain is not considered. And in the case of figure [[fig:facefour5]] one can also observe that the matched time series have higher frequencies that do not match the template series with smaller magnitude and hence lower rank where probably outside of the top k frequency matches and therefore not considered. This could be remedied by increasing k to a higher level.
 
 ** Window Type
 winner of summary statistic by window type
+
+Welch's method most matches in the data categories and the classes. But not applicable in all cases
 
 ** Comparision DTW
 Between the results of Dynamic Time Warping
@@ -814,7 +839,7 @@ When matching frequencies this will also include series that have the same patte
 
 #+caption: Repeating Pattern example - UCR: PigAirwayPressure - 127
 #+name: fig:multi_pattern
-[[./img/dtw_comp_res/PigAirwayPressure_127_ucr_dtw_fft_comp.png]]
+[[./img/dtw_comp_res/PigAirwayPressure_127.png]]
 
 Now whether the result is desirable depends on the context of the analysis or subsequent process the time series are to be utilized for.
 
@@ -850,7 +875,59 @@ The downside of our proposed algorithm includes that there is no singular partic
 - adjustment of number of frequencies used
 -
 * Results & Discussion
+* Visualizations of results
+<<sec:vis_res>>
+#+caption: Chinatown - 283
+#+name: fig:chinatown283
+[[./img/dtw_comp_res/Chinatown_283.png]]
+
+#+caption: ElectricDevices - 3660
+#+name: fig:electricdevices3660
+[[./img/dtw_comp_res/ElectricDevices_3660.png]]
+
+#+caption: FaceFour - 5
+#+name: fig:facefour5
+[[./img/dtw_comp_res/FaceFour_5.png]]
+
+#+caption: ItalyPowerDemand - 179
+#+name: fig:italypowerdemand179
+[[./img/dtw_comp_res/ItalyPowerDemand_179.png]]
+
+#+caption: Mallat - 1407
+#+name: fig:mallat1407
+[[./img/dtw_comp_res/Mallat_1407.png]]
+
+#+caption: MiddlePhalanxTW - 96
+#+name: fig:middlephalanxtw96
+[[./img/dtw_comp_res/MiddlePhalanxTW_96.png]]
+
+#+caption: Phoneme - 1606
+#+name: fig:phoneme1606
+[[./img/dtw_comp_res/Phoneme_1606.png]]
+
+#+caption: ScreenType - 323
+#+name: fig:screentype323
+[[./img/dtw_comp_res/ScreenType_323.png]]
+
+#+caption: ShapesAll - 188
+#+name: fig:shapesall188
+[[./img/dtw_comp_res/ShapesAll_188.png]]
+
+#+caption: SmoothSubspace - 71
+#+name: fig:smoothsubspace71
+[[./img/dtw_comp_res/SmoothSubspace_71.png]]
+
+#+caption: ToeSegmentation1 - 49
+#+name: fig:toesegmentation149
+[[./img/dtw_comp_res/ToeSegmentation1_49.png]]
+
+#+caption: UWaveGestureLibraryAll - 609
+#+name: fig:uwavegesturelibraryall609
+[[./img/dtw_comp_res/UWaveGestureLibraryAll_609.png]]
+
+#+caption: Wafer - 5710
+#+name: fig:wafer5710
+[[./img/dtw_comp_res/Wafer_5710.png]]
 
 #+LATEX: \printbibliography[title={References}, keyword={textref}]
 #+LATEX: \printbibliography[title={Data References}, keyword={dataref}]
-
