@@ -20,7 +20,7 @@
 #+LATEX: \newcommand{\euler}{e}
 
 
-
+* Abstract
 * Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
 
@@ -574,7 +574,7 @@ After the completion of phase I the time series pool is ready for use. When a ne
 \end{equation}
 #+end_export
 
-where $type$ refers to the FFT type. This reduces the pool of the matching series to all time series from the pool per FFT type that are equivalent to the highest matching score for that transformation type. Next an additional limitation is applied that restricts the result set of matching series (named $A$) to having a trend that must match in slope (up/down) to the slope of the template time series
+where $type$ refers to the FFT type. This reduces the pool of the matching series to all time series from the pool per FFT type that are equivalent to the highest matching score for that transformation type. The remaining series are discarded. Next an additional limitation is applied that restricts the result set of matching series (named $A$) to having a trend that must match in slope (up/down) to the slope of the template time series
 
 #+begin_export latex
 \begin{equation}
@@ -582,7 +582,7 @@ A_{trend} = \{S_{i} \in S_{N} \mid \mathds{1}\left(- \frac{m_{S_t}}{\lvert m_{S_
 =- \frac{m_{S_{i}}}{\lvert m_{S_{i}} \rvert} \right)  \},
 \end{equation}
 #+end_export
-where $m_{S_t}$ is the slope of the template time series and $m_{S_i}$ is the slope of the time series of the time series pool $S_N$ currently under investigation.  This metric in our algorithm is used to rule out time series from the pool that have a trend that goes into the opposite direction of the template series. This property is not easily discernable from the coefficients found in the Fourier transform. For example if the series for which we want to matching series in the pool has a negative trend, all series with a positive trend from the result set are ruled out before the other statistical metrics are utilized. However, if the trend for the investigation at hand is not relevant this step can easily be removed.
+where $m_{S_t}$ is the slope of the template time series and $m_{S_i}$ is the slope of the time series of the time series pool $S_N$ currently under investigation.  This metric in our algorithm is used to rule out time series from the pool that have a trend that goes into the opposite direction of the template series. This property is not easily discernable from the coefficients found in the Fourier transform. For example if the series for which we want to find matching series in the pool has a negative trend, all series with a positive trend from the result set are ruled out before the other statistical metrics are utilized. However, if the trend for the investigation at hand is not relevant this step can easily be removed.
 
 The last step in our algorithm to match series involves optimizing for one of the other statistical metrics computed on the original time series. With the metrics described in section [[sec:stat_mtr]] it makes sense to optimize for the lowest delta in desired statistical metric on the remaining result set after the previous matching steps. This selection is executed without regard for the transform method used as the metrics are comparable. The ranked difference between the template time series and the pool series is then used to select the most matching series
 #+begin_export latex
@@ -595,7 +595,7 @@ Figure [[fig:match_ts]] provides a pictorial overview of the time series matchin
 #+name: fig:match_ts
 [[./img/process_match_ts.png]]
 
-From the resulting order of the series one or multiple elements can be used to identify the most similar series to this algorithm. This can be done in multiple ways and is task dependent. This procedure does impose some absolute truth in the results but rather a gradient of closeness that begins by the determining the frequencies contained in the Fourier domain as the most important descriptor of similarity between series. The remaining metrics then build upon the reduced result set to optimize for some aspect of similiarity between the series.
+From the resulting order of the series one or multiple elements can be used to identify the most similar series to this algorithm. This can be done in multiple ways and is task dependent. This procedure does not impose some absolute truth in the results but rather a gradient of closeness that begins by the determining the frequencies contained in the Fourier domain as the most important descriptor of similarity between series. The remaining metrics then build upon the reduced result set to optimize for some aspect of similiarity between the series.
 
 ** Frequency handling in time series
 <<sec:freq_handling>>
@@ -737,7 +737,7 @@ For the FFT-based method to find similar time series the procedure was similar i
 
 With these results the performance evaluation was conducted.
 ** Time complexity and duration
-Due to the different time complexities of the underlying algorithms two different computers were used for the execution. Both algorithms were parallelized to allow to utilize more powerful compute infrastructures. The FFT-based algorithm was executed on a personal laptop 8 Intel-based CPU, 16GB RAM machine that simulataneously also ran other user-based activities. For the DTW a cloud-based machine with 32 CPU and 64 GB of RAM was chosen. Comparing the actual runtimes on these different hardwares and different operating system is not a good scientific measure of performance but is provided here to give an indication of the class difference between the two algorithms. The DTW required 2.9 days of execution time on the cloud hardware, compared to 22.5 minutes for the FFT-based algorithm. The DTW method was only executed once, therefore no repeated measurements have been taken to confirm the execution time of the entire dataset. However, repeated measurements have been taken to evalute the performance of finding the best match for a single template series in the UCR time series pool. The results vary depending on the length of the time series but average 180 seconds for the UCR time series pool in our Python implementation. This operation is not parallelized but is executed on a single core. For the FFT-based algorithm computing the results for single template series across the UCR dataset averages given all windows takes roughly 0.016 seconds on the 8-core machine. The results for the entire test set was run with parallelization but the search for one template series is executed on a single core. The difference amounts to an performance difference factor of roughly 11.250.
+Due to the different time complexities of the underlying algorithms two different computers were used for the execution. Both algorithms were parallelized to allow to utilize more powerful compute infrastructures. The FFT-based algorithm was executed on a personal laptop 8 Intel-based CPU, 16GB RAM machine that simulataneously also ran other user-based activities. For the DTW a cloud-based machine with 32 CPU and 64 GB of RAM was chosen. Comparing the actual runtimes on these different hardwares and different operating system is not a good scientific measure of performance but is provided here to give an indication of the class difference between the two algorithms. The DTW required 2.9 days of execution time on the cloud hardware, compared to 22.5 minutes for the FFT-based algorithm. The DTW method was only executed once, therefore no repeated measurements have been taken to confirm the execution time of the entire dataset. However, repeated measurements have been taken to evalute the performance of finding the best match for a single template series in the UCR time series pool. The results vary depending on the length of the time series but average 180 seconds for the UCR time series pool in our Python implementation. This operation is not parallelized but is executed on a single core. For the FFT-based algorithm computing the results for single template series across the UCR dataset averages given all windows takes roughly 0.016 seconds on the 8-core machine. The results for the entire test set was run with parallelization but the search for one template series is executed on a single core. The difference amounts to an performance difference factor of roughly 11.250. The given results for the execution time include additional computational complexity as well as wait times for writing files to the hard drive. Those additional steps are more for the FFT-based scenario and could be left out if we are not interested in analyzing the intermediate steps. This would further increase the time performance advantage of the FFT-based method.
 
 To generalize these is results it is pertinent to look at time complexity of the two algorithms. For this multiple things need to be reviewed. For Dynamic Time Warping the case is straightforward, because only $\mathcal{O}(m*n)$ needs to be considered for the number of $l$ series in the time series pool for:
 #+begin_export latex
@@ -803,11 +803,12 @@ When visualizing the time complexity of our similarity search algorithm (orange)
 It is obvious that performance of our proposed method significantly outperforms the DTW-based method. In real-world scenarios this already true for very small values of $n$ and $l$.
 
 ** UCR results overview
-The UCR dataset provides a unique property that is interesting for a formal evaluation. Each time series in a category, for example ECG5000 in the test data is assigned a class value. This class value is determined via a baseline classification result that is determined via 1-Nearest Neighbor classifier cite:hoang2019. Per category in the training dataset each time series is assigned a class value. If that time series is the closest for the time series in the test dataset it is associated with that class value. This distance measure used for this class attribute is the Euclidean Distance (ED) introduced in [[sec:ed]].
+<<sec:ucr_res_ov>>
+The UCR dataset provides a unique property that is interesting for a formal evaluation. Each time series in a category, for example ECG5000 in the test data is assigned a class value cite:hoang2019. The way of classification of the time series is different between the different time series data categories in the repository. For example citeauthor:willet2016 utilizes other published standards to classify the data into feeding states of insect vectors cite:willet2016. This time series repository is part of the UCR archive. In consequence, the data overall follow different principles for classification that cannot be generalized into a single method.
 
-For Dynamic Time Warping in 63% of the cases (889 out of 1420) from the random sample was found within in the same data category. And from those within the same category  74% of the time series (658/889) where attributed to the same class. This result makes sense as DTW is closely related to the Euclidean Distance which forms the basis of class association in the 1-NN computation. 112 categories of 128 original categories in the random sample have a match within the same category.
+For Dynamic Time Warping in 63% of the cases (889 out of 1420) from the random sample was found within in the same data category. And from those within the same category  74% of the time series (658/889) where attributed to the same class. 112 categories of 128 original categories in the random sample have a match within the same category.
 
-The results for the FFT-based time similarity have some similarities to the DTW results. The random sample of 1420 time series taken from the test set produced 746 cases of the same data category as result for the best window type and KPI combination (Welch and standard deviation). Recall, that for with the FFT-based method each series is transformed via 3 different window types and augmented with 8 summary statistic KPIs available for selection. This produces 24 results per time series from the random sample. This is indicative of an observation one can make when checking multiple samples of the matching series (see [[sec:vis_res]]). Very often the series found via the FFT-based method have a very similar shape and value level to template series and are comparable to the results achieved via the DTW.
+The results for the FFT-based time similarity have some similarities to the DTW results. The random sample of 1420 time series taken from the test set produced 746 cases of the same data category as result for the best window type and KPI combination (Welch and standard deviation). Recall, that for with the FFT-based method each series is transformed via 3 different window types and augmented with 8 summary statistic KPIs available for selection. This produces 24 results per time series from the random sample. This is indicative of an observation one can make when checking multiple samples of the matching series (see [[sec:vis_res]]). Very often the series found via the FFT-based method have a very similar shape and value level to template series and are comparable to the results achieved via the DTW. Important to note is that in order to keep data volume required for comparing the match scores at a reasonable file size a threshold for the match score was introduced. It was set to 10^3 as the minimum score to be needed to be allowed to be considered a match. There are 9 series that were not able to achieve this match score for the entire dataset when applying Welch's method as a window. 8 of the series come from the EthanolLevel data category and 1 from the HandOutlines category.
 
 #+caption: Number of matched data categories in UCR repository
 #+name: fig:matched_cats_ucr
@@ -815,7 +816,7 @@ The results for the FFT-based time similarity have some similarities to the DTW 
 
 Noteable is the performance difference between the different window types. Welch's method FFT far outperforms the other two methods. Not surprising is the fact that the summary statistic standard deviation of the series has a high success rate because it reflects a characteristic is likely similar with series coming from similar distributions. Also interesting to note is that the quantile information as a whole is more indicative of the same data category than the mean.
 
-Where the results between the DTW and our approach differ are in the identification of the classes assigned to the time series. In figure [[fig:matched_cls_ucr]] one can observe the distribution of matched classes of time series. Of course, this requires that also the data categories are matched. With 39 matches for the combination of Welch's method and the series mean as summary statistic this results only in a 7% match of the 585 matches from this analytics combination. This result is not surprising. DTW resembles the mechanism of class identification with 1-NN via Euclidean Distance much more than a matching a transformed representation based on sine and cosine functions augmented with further statistical measures. Analogous to the data categories, Welch's method is most adequate for finding the same class when contrasted with the other window functions.
+Where the results between the DTW and our approach differ are in the identification of the classes assigned to the time series. In figure [[fig:matched_cls_ucr]] one can observe the distribution of matched classes of time series. Of course, this requires that also the data categories are matched. With 39 matches for the combination of Welch's method and the series mean as summary statistic this results only in a 7% match of the 585 matches from this analytics combination. Analogous to the data categories, Welch's method is most adequate for finding the same class when contrasted with the other window functions.
 
 #+caption: Number of matched classes in UCR repository
 #+name: fig:matched_cls_ucr 
@@ -823,35 +824,38 @@ Where the results between the DTW and our approach differ are in the identificat
 
 A visual inspection of the results produced by the different windows and summary statistics (see [[sec:vis_res]]) shows that the overall performance of finding similar time series is very good with some mishaps. For example, while most of the metrics in figure [[fig:chinatown283]] are very good the combination of the trend $\Delta m$ matches a completely inadequate series. The performance gets worse, as the frequency values required to represent the series in FFT space increase. This is also not surprising due to logarithmic range width that increases with higher frequencies. The data analysis in section [[sec:data_properties]] showed the increase of frequencies at the low and high end. Possible remedies could be linear range setup that increase the compute time, or using classical clustering metrics like Euclidean distance of the ranked frequencies, or creating a range that is sensitive on the low and high boundaries of the frequency range. Another interesting observation are figures [[fig:facefour5]] and [[fig:mallat1407]]. Here the mechanism of the FFT becomes visible. One can observe that the general patterns of the wave form are matched but the exact place of their occurrance on the domain is not considered. And in the case of figure [[fig:facefour5]] one can also observe that the matched time series have higher frequencies that do not match the template series with smaller magnitude and hence lower rank where probably outside of the top k frequency matches and therefore not considered. This could be remedied by increasing k to a higher level.
 
+** Match scores
+The first aspect that determines which time series from the pool are considered are the ranked matching scores per window type. The highest ranking scores are kept for each window type and the rest is discarded as described in [[sec:match_ts]]. For the surviving candidates the $\Delta$ of the summary statistics are computed and the ranking is applied. This is done separately as well for each window type. With this result we can review each summary statistic for smallest delta without regard for the window type and declare that resulting time series as the closest match for that particular metric. The distribution of the match scores is visible in figure [[fig:match_scores_dist]]. We observe that the results are are distributed for the most part around 10^4 and higher values. Also here we confirm once again that the Welch's method has the largest share of the top scores. It also has the smallest share of low results around the 10^3 score mark. The largest percentage of low scores is captured by the regular FFT, further underlying the effects of spectral leakage and the consequential mismatching of frequencies.
+
+#+caption: Distribution of match scores
+#+name: fig:match_scores_dist
+[[./img/match_score_dist.png]]
+
 ** Window Type
-winner of summary statistic by window type
+As shown in the in section [[sec:ucr_res_ov]] the window type does play an important role in finding adequate results for the matching series.
 
-Welch's method most matches in the data categories and the classes. But not applicable in all cases
+Each window type can have side effects. As described in section [[sec:spec_leak]] windows help address the side effects of spectral leakage. However, the window can also lead to other effects. Consider a template series like in figure [[fig:multi_pattern]] that has a particular dominant feature like the tooth shape visible in the template series. In the match that considers the median (d_q50) as summary statistic we see an interesting result regarding Welch's method. Due to the fact that Welch's method slices the time series into multiple segments, applies a window and then averages the found frequencies one can see how a series that has the same dominant shape but multiple occurences of it produces a very similar result in the frequency domain. The median in this example must also have a similar value in both series as the ranges are similar. The second tooth in the pool series is just a repeption of the first, therefore the median is not affected significantly. And in consequence one receives a result that where a similar pattern repeats but the time series are still considered very similar.
 
-** Comparision DTW
-Between the results of Dynamic Time Warping
-
-Some of the unintended side-effects can be mitigated. For example with frequencies and chosen summary statistic matching one may have a resulting time series from the pool that has a vastly different length compared to the template time series. This can be mitigated by imposing another restriction on the result set of the resulting series having to be within some treshold of length compared to the template. The DTW method mitigates this due to the fact that higher length series will lead to higher overall distance scores and hence will be ranked lower compared to shorter series whose points are also in a similar vicinity compared to the template series.
-
-Another side effect of our proposed method is the handling of patterns. Consider a template series like in figure [[fig:multi_pattern]] that has a particular dominant feature like the tooth shape visible in the template series. In the match that considers the median (d_q50) as summary statistic we see an interesting result regarding Welch's method. Due to the fact that Welch's method cuts the time series into multiple segments, applies a window and then averages the found frequencies one can see how a series that has the same dominant shape but multiple occurences of it produces a very similar result in the frequency domain. The median in this example must also have a similar value in both series as the ranges are similar. The second tooth in the pool series is just a repeption of the first, therefore the median is not affected significantly. And in consequence one receives a result that is 
-
-When matching frequencies this will also include series that have the same pattern but multiple occurences of the pattern. Now if one chooses a summary statistic that does not consider metrics like the mean, median or standard deviation but something that doesn't consider these averages of values but rather minima, maxima or slopes one can find a result that has repetitions of this feature, and has them in different places compared to the template series.
+When matching frequencies this will also include series that have the same pattern but multiple occurences of the pattern. Now if one chooses a summary statistic like minima, maxima or slopes one can find a result that has repetitions of this feature, and has them in different places compared to the template series.
 
 #+caption: Repeating Pattern example - UCR: PigAirwayPressure - 127
 #+name: fig:multi_pattern
 [[./img/dtw_comp_res/PigAirwayPressure_127.png]]
 
-Now whether the result is desirable depends on the context of the analysis or subsequent process the time series are to be utilized for.
+Now whether the result is desirable depends on the context of the analysis or subsequent process the time series are to be utilized for. Therefore, it is expedient to work with different window types and summary statistics adequate for ones analytics requirement when searching for similar time series.
 
-how often same class for each summary statistic
-how often same result for each summary statistic
+Some of the side-effects can be mitigated. For example with frequencies and chosen summary statistic may have a resulting time series from the pool that has a vastly different length compared to the template time series. This can be mitigated by imposing another restriction on the result set of the resulting series having to be within some treshold of length compared to the template. The DTW method mitigates this due to the fact that higher length series will lead to higher overall distance scores and hence will be ranked lower compared to shorter series whose points are also in a similar vicinity compared to the template series.
 
-that due to the fact that matching occurs first on the frequencies alone it may lead to results where 
+** Interesting examples
+[[fig:italypowerdemand179]] equally good result compared to DTW
+
+Mixed result [[fig:mallat1407]]
 
 
+beautiful result [[fig:middlephalanxtw96]]
+low frequency
 
-Therefore, our proposed algorithm can be used to be
-
+[[fig:phonome1606]] - challenging task
 
 - (maybe ) improvement in forecasting approach
 - find dataset with ground truth and compare DTW to this approach
@@ -875,6 +879,13 @@ The downside of our proposed algorithm includes that there is no singular partic
 - adjustment of number of frequencies used
 -
 * Results & Discussion
+In this work we have shown that our proposed algorithm based on the Fast Fourier Transform (FFT) with frequency match scores augmented by summary statistics can be utilized to identify similar time series from a pool for a provided template works very fast compared to the standard method of Dynamic Time Warping (DTW) and creates very good overall results. Additionally we have applied multiple windows to the dataset to deal with the inherent short comings of the various techniques. The way of integrating the summary statistics gives a user the flexibility to adjust the algorithm to the needs of her specific anaytics task for which the similar time series are to be found.
+
+The purpose of building a time series search engine can be achieved with this mechanism as results can be retrieved in sub seconds. This is a feat that would not be possible utilizing DTW for the same purpose.
+
+The downside of utilizing our algorithm are that in its current form there are side effects which need to be considered, like retrieving series that have repeating patterns that do match in quantity or location depending on the used window type.
+
+Future work, should focus on further enhancing the range association mechanism that better integrates the high frequency spectrum so that high frequencies are reflected accordingly in the identification 
 * Visualizations of results
 <<sec:vis_res>>
 #+caption: Chinatown - 283

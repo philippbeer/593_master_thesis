@@ -1,0 +1,73 @@
+\documentclass[phd,black]{PrincetonThesis}
+	\usepackage{epsfig}
+	\usepackage{times}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{pbox}
+\usepackage{lscape}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{array}
+\usepackage[toc,page]{appendix}
+\usepackage{framed}
+\usepackage{float}
+\usepackage{pgfplots}
+
+\newcommand{\tablespace}{\vspace{.3\baselineskip}}
+\newcolumntype{C}[1]{>{\centering}m{#1}}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+	\title{A System For Automatic Classification Of Twitter Messages Into Categories}
+	\author{Alexandros Theodotou}
+	\department{Computer Science}
+	\advisor{Dr. Athena Stassopoulou}
+	\degreemonth{June}
+	\degreeyear{2015}
+	
+	\begin{document}
+	
+	\begin{frontmatter}
+	 
+	  \begin{thesisabstract}
+Twitter is a widely used online social networking site where users post short messages limited to 140 characters. The small length of these messages is a challenge when it comes to classifying them into categories. This project builds on ideas from similar papers in the Data Mining and Machine Learning fields to propose a system that automatically classifies Twitter messages into categories. The system takes into account not only the tweet text, but also external features such as words from linked URLs, mentioned user profiles, and Wikipedia articles. A Naive Bayes classifier is implemented in C\# and the effects of including various combinations of feature sets are examined and evaluated. Using a test set of 1050 tweets in total, manually labelled from a larger collection, it is found that the best combination to achieve high accuracy is: original tweet terms + user profile terms + terms extracted from linked URLs. The highest accuracy achieved is 91.6\% based on the F1 metric. Including terms from Wikipedia pages found specifically for each tweet is shown to decrease accuracy for the original test set, however accuracy was shown to increase using a fraction of the original test set containing only tweets without URLs.
+	  \end{thesisabstract}
+
+	  \begin{acknowledgements}
+I would like to thank my advisor Dr. Athena Stassopoulou for her continuous guidance, willingness to help, and making sure everything goes smoothly, as well as my parents for their financial support in completing my studies.
+	  \end{acknowledgements}
+	
+	\end{frontmatter}
+	
+	\cleardoublepage
+\chapter{Introduction}
+\label{chap:intro}
+\section{Overview}
+
+\
+
+\newpage
+
+\chapter{Literature Review}
+\label{chap:literature-review}
+\section{Introduction}
+
+
+\chapter{System Architecture}
+\chapter{Conclusion and Future Work}
+\par
+
+
+\appendix
+	
+\cleardoublepage
+
+\chapter{Source Code}
+A CD is provided that includes the source code as C\# project files, log files from the classification results presented in this paper, as well as a full database schema including the data in SQL form.
+	
+\cleardoublepage
+\nocite{*} %% use everything in bibtex file, even if not cited
+\bibliographystyle{abbrv} %% or your favorite style
+\bibliography{princeton} %% assuming your bibtex file is thesis.bib
+	
+\end{document}
