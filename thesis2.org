@@ -4,7 +4,7 @@
 #+EMAIL: beer.p@live.unic.ac.cy
 
 #+LATEX_CLASS: PrincetonThesis
-#+LATEX_CLASS_OPTIONS: [phd,black]
+#+LATEX_CLASS_OPTIONS: [phd,black, hidelinks]
 #+LATEX_HEADER: \usepackage{epsfig}
 #+LATEX_HEADER: \usepackage{times}
 #+LATEX_HEADER: \usepackage{hyperref}
@@ -56,8 +56,19 @@
 #+end_src
 
 #+RESULTS:
+* frontmatter :ignore:
 \pgfplotsset{compat=1.17}
-
+#+begin_export latex
+\begin{frontmatter}
+\begin{thesisabstract}
+This is abstract.
+\end{thesisabstract}
+\begin{acknowledgements}
+These are the acknowledgements.
+\end{acknowledgements}
+\end{frontmatter}
+\cleardoublepage
+#+end_export
 * Abstract
 * Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
