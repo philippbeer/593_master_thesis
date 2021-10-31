@@ -1,5 +1,5 @@
 #+startup: Num
-#+TITLE: Time series: Defining a search engine
+
 #+AUTHOR: Philipp Beer
 #+EMAIL: beer.p@live.unic.ac.cy
 #+STARTUP: overview indent
@@ -7,6 +7,7 @@
 #+TAGS: noexport(n) deprecated(d) ignore(i)
 #+EXPORT_SELECT_TAGS: export
 #+EXPORT_EXCLUDE_TAGS: noexport
+
 #+LATEX_CLASS: PrincetonThesis
 #+LATEX_CLASS_OPTIONS: [phd,black]
 #+LATEX_HEADER: \usepackage{epsfig}
@@ -27,18 +28,17 @@
 
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \usepackage{natbib}
 #+LATEX_HEADER: \DeclareMathOperator*{\argmin}{arg\,min}
 #+LATEX_HEADER: \DeclareMathOperator*{\argmax}{arg\,max}
 #+LATEX_HEADER: \usepackage{dsfont}
 #+LATEX_CLASS_OPTIONS: [hidelinks]
 
+#+LATEX_HEADER: \newcommand{\tablespace}{\vspace{.3\baselineskip}}
+#+LATEX_HEADER: \newcolumntype{C}[1]{>{\centering}m{#1}}
+#+LATEX_HEADER: \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 
-
-#+LATEX: \newcommand{\tablespace}{\vspace{.3\baselineskip}}
-#+LATEX: \newcolumntype{C}[1]{>{\centering}m{#1}}
-#+LATEX: \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
-
-#+LATEX_HEADER: \author{Philipp Beer}
+#+LATEX_HEADER: \title{Time series: Defining a search engine}
 #+LATEX_HEADER: \advisor{Dr. Ioannis Katakis}
 #+LATEX_HEADER: \department{Computer Science}
 #+LATEX_HEADER: \degreemonth{February}
@@ -48,7 +48,6 @@
 
 #+LATEX: \newcommand{\compconj}[1]{\overline{#1}}
 #+LATEX: \newcommand{\euler}{e}
-
 
 * PrincetonThesis configuration for org export + ignore tag (Start Here) :noexport:
 #+begin_src emacs-lisp :results output :session :exports both
@@ -79,6 +78,8 @@ These are the acknowledgements.
 \cleardoublepage
 #+end_export
 
+
+
 * Purpose
 The purpose of this thesis is to explore the possibility of creating a time series series search engine.
 
@@ -92,7 +93,7 @@ $S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestam
 
 Time series are utilized to analyze and gain insight from historic events/patterns with respect to the observational variable(s) and their interactions. A second area of application is forecasting. Here time series are utilized to predict the observations that occur in future under the assumption that the historic information can provide insight into the behavior of the observed variables.
 
-Fu in their work cite:Fu_2011 categorized time series research into (1) representation, (2) indexing, (3) similarity measure, (4) segmentation, (5) visualization and (6) mining. Research in these different fields started taking off in the second half of the 20^th century. For example in cite:_str_m_1969 the authors worked on questions of representation via sampling the sampling of time series in 1969. All these different research areas always have to deal with the challenges that inhibit time series data. Generally datasets in this domain are large. Through this time series data incorporates the similar obstacles as high dimensional data, namely the "curse of dimensionality" cite:Tang_2019 and requiring large computational efforts in order to generate insights. And as will be discussed in [[sec:apps]] there are applications fields where vast amounts of time series are generated and a comparison between them is required.
+citeauthor:Fu_2011 in their work cite:Fu_2011 categorized time series research into (1) representation, (2) indexing, (3) similarity measure, (4) segmentation, (5) visualization and (6) mining. Research in these different fields started taking off in the second half of the 20^th century. For example in cite:_str_m_1969 the authors worked on questions of representation via sampling the sampling of time series in 1969. All these different research areas always have to deal with the challenges that inhibit time series data. Generally datasets in this domain are large. Through this time series data incorporates the similar obstacles as high dimensional data, namely the "curse of dimensionality" cite:Tang_2019 and requiring large computational efforts in order to generate insights. And as will be discussed in [[sec:apps]] there are applications fields where vast amounts of time series are generated and a comparison between them is required.
 
 In this thesis we will focus on creating a algorithm allowing the fast and meaningful comparison of an input time series or template against a vast array time series. Within the research many different areas and approaches have been attempted (at list here). However, there is a tendency to apply the simplest methods possible to achieve the desired results. For time series those are mainly Euclidean Distance and Dynamic Time Warping. While those methods will be explored in section [[sec:exis_work]] it can be said that those methods are simple, easy to understand and produce mostly reliable results in their respective application domains. Good performance is not their strong suit. Therefore, our approach is targeted to achieving comparable capability in identifying similar series, while achieving it with a significant reduction in computational complexity.
 
@@ -995,9 +996,10 @@ Future work, should focus on further enhancing the range association mechanism t
 [[./img/dtw_comp_res/Wafer_5710.png]]
 
 
+
 \cleardoublepage
 \nocite{*}
-
-\bibliography{thesis}
+bibliographystyle:abbrv
+bibliography:thesis.bib 
 
 

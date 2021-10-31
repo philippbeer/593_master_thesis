@@ -392,7 +392,7 @@
 	\vskip 2em
 		Recommended for Acceptance\\
 		by the Department of\\
-                \pu@department \\
+		\pu@department \\
 	\vskip 2em
 		\pu@degreemonth, \pu@degreeyear
 	\end{center}
