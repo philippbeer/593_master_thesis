@@ -1,5 +1,5 @@
 #+startup: Num
-#+TITLE: Time Series: Defining a Search Engine
+#+TITLE: Time Series: Defining a Search Engine Algorithm
 #+AUTHOR: Philipp Beer
 #+EMAIL: beer.p@live.unic.ac.cy
 #+OPTIONS: toc:nil
@@ -35,7 +35,7 @@
 #+LATEX_HEADER: \newcolumntype{C}[1]{>{\centering}m{#1}}
 #+LATEX_HEADER: \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 
-#+LATEX_HEADER: \title{Time series: Defining a search engine}
+#+LATEX_HEADER: \title{Time series: Defining a search engine algorithm}
 #+LATEX_HEADER: \advisor{Dr. Ioannis Katakis}
 #+LATEX_HEADER: \department{Computer Science}
 #+LATEX_HEADER: \degreemonth{February}
@@ -83,7 +83,7 @@ $S = (s_1,s_2,\dots,s_n)$ where $s_n = (t_n,v_n)$. $t_n$ can be a date, timestam
 
 Time series are utilized to analyze and gain insight from historic events/patterns with respect to the observational variable(s) and their interactions. A second area of application is forecasting. Here time series are utilized to predict the observations that occur in future under the assumption that the historic information can provide insight into the behavior of the observed variables.
 
-Fu in his work categorized time series research into (1) representation, (2) indexing, (3) similarity measure, (4) segmentation, (5) visualization and (6) mining cite:Fu_2011. Research in these different fields started taking off in the second half of the 20^th century. For example in cite:_str_m_1969 the authors worked on questions of representation via sampling the sampling of time series in citeyear:_str_m_1969. All these different research areas always have to deal with the challenges that inhibit time series data. Generally data sets in this domain are large. Through this time series data incorporates the similar obstacles as high dimensional data, namely the "curse of dimensionality" cite:Tang_2019 and requiring large computational efforts in order to generate insights. And as will be discussed in [[sec:apps]] there are applications fields where vast amounts of time series are generated and a comparison between them is required.
+Fu in his work categorized time series research into (1) representation, (2) indexing, (3) similarity measure, (4) segmentation, (5) visualization and (6) mining cite:Fu_2011. Research in these different fields started taking off in the second half of the 20^th century. For example in cite:_str_m_1969 the authors worked on questions of representation via sampling the sampling of time series in 1969. All these different research areas always have to deal with the challenges that inhibit time series data. Generally data sets in this domain are large. Through this time series data incorporates the similar obstacles as high dimensional data, namely the "curse of dimensionality" cite:Tang_2019 and requiring large computational efforts in order to generate insights. And as will be discussed in [[sec:apps]] there are applications fields where vast amounts of time series are generated and a comparison between them is required.
 
 In this thesis we will focus on creating an algorithm which allows the fast and meaningful comparison of an input time series or template against a database of time series. This is an important field of research for many different reason. In part, because time series are omnipresent, they are growing in volume and length, and the permeate many areas of science. Lots of work in this field has already been done. However, as we will see in [[sec:exis_work]] in application there is a tendency to revert to simple methods that accomplish the desired results. For time series those are mainly Euclidean Distance and Dynamic Time Warping. This is a good approach for as long as those methods achieve that and are feasible to execute on real-world data scenarios. We will see that this is not the case for both mentioned categories. This is were our proposed algorithm steps in and aims to provide comparable or subjectively better results with significantly less computational effort.
 
@@ -162,24 +162,25 @@ Based on into which \beta category a value of PAA fits a symbol is assigned. "*a
 As stated before, this method relies on the fact that the data is normally distributed. Therefore, it can be great to detect for example anomalies in streaming data. Also the distance computation is preserved on the PAA values. However, the distance computation is still based on Euclidean Distance (ED) and has the same time complexity as before, but for fewer data points compared to the original series.
 * Theoretical background
 <<sec:theory>>
-This section gives an overview of the concepts utilized in this thesis to generate the baseline performance of the algorithm against which our
+In this section we explore the different underlying concepts relevant to our algorithm. We start by introducing Euclidean Distance ([[sec:ed]]) and Dynamic Time Warping ([[sec:dtw]]), discuss how they work and what limitations they face.
+The last section in this chapter introduces the Fast Fourier Transform ([[sec:fft]]). It provides an overview on how it is derived and which properties are most important to our algorithm. We close this chapter with a section on window or apodization functions and their relevance for Fourier transforms.
 
 ** Euclidean Distance
 <<sec:ed>>
-Euclidean Distance is the most widely used distance metric in the research of time series. It is either used as a metric on its on or a as metric used inside other methods to compute distances, for example, computation of distance of subsections of the data (cite:Faloutsos_1994) or to compute the distance between various points of two time series (see section [[sec:dtw]]). Having two time  series $S = \{s_1, s_2, \dots, s_n\}$ and $Q = \{q_1, q_2, \dots, q_n \}$ both of length $n$ the Euclidean distance can be computed as:
+Euclidean Distance (ED) is the most widely used distance metric in the research of time series. It is either used as a metric on its own or a as metric used inside other methods to compute distances, for example, the computation of distances of subsections of time series data (cite:Faloutsos_1994) or to compute the distance between various points of two time series (see section [[sec:dtw]]). Having two time  series $S = \{s_1, s_2, \dots, s_n\}$ and $Q = \{q_1, q_2, \dots, q_n \}$ both of length $n$ the Euclidean distance can be computed as:
 #+BEGIN_EXPORT latex
 \begin{equation}
 D(S,Q) = \sqrt{\sum_{i=1}^{n}{(S_i,Q_i)^2}}
 \end{equation}
 #+END_EXPORT
 
-It is a measure that is easy to compute and comprehend and gives intuitive input for the distance of two time series. From the standpoint of time complexity the algorithm is applicable also to larger data sets with $\mathcal{O}(n)$. Its simplicity also creates some limitations. For example, to compute the Euclidean distance between two series their length needs to be the same. Furthermore, it can be easily impacted in its results by the presence of outliers or increased levels of noise. It is not elastic with respect to the warping of information between two series in which effects that could indicate similarity happen even at slightly disparate steps. 
+It is a measure that is easy to compute and comprehend and gives intuitive input for the distance and hence similarity of two time series. If there multiple series involved for comparison the resulting distances can be used for ranking or clustering the results. From the standpoint of time complexity the algorithm is applicable also to larger data sets with $\mathcal{O}(n)$. Its simplicity also creates some limitations for real-world scenarios. For example, to compute the Euclidean Distance between two series their length needs to be the same. Consider, having two time series with differing lengths. The maximum points that can be compared are determined by the shorter time series. This would lead to the obscure situation that the distance for some of points of the longer series are not computed at all and hence would not be considered when trying to compare and rank the similarity between multiple series. Furthermore, ED can be easily impacted in its results by the presence of outliers or increased levels of noise. Depending on the magnitude of the outlier, that single distance measure may overshadow the remainder of the series. In addition, it is not elastic with respect to the warping of information between two series in which effects that could indicate similarity happen even at slightly disparate steps. 
 
-Despite its shortcomings it is a prominent metric and widely used for distance calculations for short comings. Some of its limitations are addressed by more sophisticated metrics that utilize its computation as component.
+Despite Euclidean Distance limitations it is a prominent metric and widely used for distance calculations for time series that can abide by its constraints and are not impacted by its short comings. Some of its limitations are addressed by more sophisticated metrics that utilize ED as component in a more sophisticated approach. We discuss the popular elastic approach of Dynamic Time Warping next.
 
 ** Dynamic Time Warping
 <<sec:dtw>>
-citeauthor:Berndt94usingdynamic introduced Dynamic Time Warping in citeyear:Berndt94usingdynamic finding the minimal alignment between two time series computed through a cost matrix and identifying the minimized path through the matrix starting from the final elements of each time series. This warps the points in time between the different series as shown in figure [[img_dtw_example]].
+Berndt and Clifford introduced the Dynamic Time Warping algorithm in 1994. It reveals the minimized alignment between two time series computed through a cost matrix and identifying the minimal total path through the matrix starting from the final elements of each time series stopping at the first element in each series. This warps the points in time between the different series as shown in figure [[img_dtw_example]].
 
 #+CAPTION: Dynamic Time Warping - M4 Example: Y5683 and Y5376
 #+NAME: img_dtw_example
@@ -188,11 +189,11 @@ citeauthor:Berndt94usingdynamic introduced Dynamic Time Warping in citeyear:Bern
 Two series $S = \{s_1, s_2, \dots, s_n\}$ of length $n$ and $Q = \{q_1, q_2, \dots, q_m\}$ of length $m$ are considered. For the series a n-by-m cost matrix $M$ is constructed. Each element in the matrix represents the respective i^th and j^th element of each of the two series which contains the distance of those to points:
 #+BEGIN_EXPORT latex
 \begin{equation}
-m_{ij} = D(s_i, q_j)
+m_{ij} = D(s_i, q_j).
 \end{equation}
 #+END_EXPORT
 
-where often time Euclidean distance is used as distance function $D(s_i, q_j) = (s_i - q_j)^2$. From the matrix a warping path $P$ is chosen, $P = p_1,p_2,\dots, p_k, \dots, p_K$ where:
+Often time Euclidean Distance is used as distance function $D(s_i, q_j) = (s_i - q_j)^2$. From the matrix a warping path $P$ is chosen, $P = p_1,p_2,\dots, p_k, \dots, p_K$ where:
 
 #+BEGIN_EXPORT latex
 \begin{equation}
@@ -200,7 +201,7 @@ where often time Euclidean distance is used as distance function $D(s_i, q_j) = 
 \end{equation}
 #+END_EXPORT
 
-The warping path is constrained with bound with the following condition $p_1 = (1,1)$ and $p_K = (m,n)$. That means that both first elements of each series, as well as, the last element of each series are bound to each other in the computation. The warping path also is continuous. This means that from each chosen element $p_k$ only the neighboring elements to the left, right and diagonally can be chosen for the continuation of the path: $p_k= (a,b)$ and $p_{k-1} = (a',b')$ with $a-a' <=1$ and $b-b' <= 1$. The path elements $p_k$ are also monotonous, meaning that $a-a' \geq 0$ and $b-b' \geq 0$. From the resulting matrix considering the mentioned constraints a cumulative distance $\gamma(i,j)$ is computed recursively:
+The warping path is  bound with the following condition $p_1 = (1,1)$ and $p_K = (m,n)$. In consequence, both the first elements of each series, as well as, the last element of each series are bound to each other in the computation. The warping path also is continuous; from each chosen element $p_k$ only the neighboring elements to the left, right and diagonally can be chosen for the continuation of the path: $p_k= (a,b)$ and $p_{k-1} = (a',b')$ with $a-a' <=1$ and $b-b' <= 1$. The path elements $p_k$ are also monotonous, meaning that $a-a' \geq 0$ and $b-b' \geq 0$. From the resulting matrix considering the mentioned constraints a cumulative distance $\gamma(i,j)$ is computed recursively:
 #+BEGIN_EXPORT latex
 \begin{equation}
 \gamma(i,j) = D(s_i,q_j) + \min \{\gamma(i-1, j-1), \gamma(i-1, j), \gamma(i, j-1)\}
@@ -219,19 +220,17 @@ Figure [[img_warp_path_ex]] provides an example for a warping path result.
 #+NAME: img_warp_path_ex
 [[./img/dtw_3way.png]]
 
-The challenge with the application of DTW is the time complexity of the algorithm $\mathcal{O}(m*n)$ due to the fact that the distance computation needs to be executed for each element of each series. Various methods for speed improvements have been introduced. The favorite principle was described by citeauthor:Ratanamahatana_2004. They introduced an adjustment window condition that where it is assumed that the optimal path does not drift very far from the diagonal of the cost matrix cite:Ratanamahatana_2004. However, this does not change the fundamental nature of the algorithm and computing DTW for multiple time series against a database of time series will require days of computation time even on modern computer architectures. 
+DTW therefore has an exhaustive search across the possible mapping space between two series and find the one that minimizes the total distance. It is a much in depth analysis compared to standard Euclidean distance allowing for distortions in the compared time series that are well captured by the warping of the matched data points. As will been seen in the section on the formal evaluation [[sec:eval]], the results of Dynamic Time Warping are optimal for finding the cumulative smallest possible Euclidean Distance between the data points of two time series. In favor of DTW needs to be stated, that it is flexible with regards to the time series used. The compared time series do not require to have the same length and can still be compared. This is a property that is not available with Euclidean Distance. However, the user also needs to be aware of outliers in either data set which can lead to a clustering of the warping path or pathological matches around those extreme points in the series.
 
-In favor of DTW needs to be stated, that it is flexible with regards to the series used. The compared time series do not require to have the same length and can still be compared. This is a property that is not available with Euclidean Distance. However, the user also needs to be aware of outliers in either data set which can lead to a clustering of the warping path or pathological matches around those extreme points in the series. 
+The challenge the application of DTW brings is the time complexity of the algorithm: $\mathcal{O}(m*n)$ due to the fact that the distance computation needs to be executed for each combination of elements between both time series. Various methods for speed improvements have been introduced. A popular principle was described by Ratanamahatana et al. The researchers introduced an adjustment window condition where it is assumed that the optimal path does not drift very far from the diagonal of the cost matrix cite:Ratanamahatana_2004. However, this does not change the fundamental nature of the algorithm's time complexity and computing DTW for multiple time series against a database of time series will require days of computation time even on modern computer architectures. Additionally, the method is not scale-invariant against the length of time series. It is an non-linear relationship that increases with the length of the series with $m*n$ or $n^2$ in case both time series have the same length.
 
-Therefore in practice, Dynamic Time Warping is not a method suitable for comparing a single time series against a large array of series when speed is an important criterion as well as the handling of outliers in the data set.
-
-**** Similarity through decomposition
-- introduce time series decomposition (reference in cite:hyndman2014forecasting)
-- trend and seasonality (mention assumptions about period)
+In practice, Dynamic Time Warping is not a method suitable for comparing a single time series against a large array of series when speed is an important criterion as well as the handling of outliers in the data set. For our work it should not be considered for building a time series search engine algorithm due to time complexity in the comparison.
 ** Fast Fourier Transform
 <<sec:fft>>
-In Fourier analysis the Fast Fourier Transform (FFT) is a more efficient implementation of the Discrete Fourier Transform (DFT) that utilizes specific properties. The Discrete Fourier transform is based on the Fourier Transform (FT) which concerns itself with the representation of functions which in turn is built upon the Fourier series. We will give a brief introduction to them. However, a thorough introduction can be found in cite:brunton2019data. The principal idea Fourier analysis follows is that it can project functions - i.e. Fourier Transform - and data vectors - i.e. Discrete Fourier Transform - into a coordinate system defined by orthogonal functions (sine and cosine). To get the exact representation of a function or a data vector it has be done in infinitely many dimensions.
+In Fourier analysis the Fast Fourier Transform (FFT) is a more efficient implementation of the Discrete Fourier Transform (DFT) that utilizes specific advantageous properties of matrix computations. The DFT is based on the Fourier Transform (FT) which concerns itself with the representation of functions on a basis of sine and cosine functions. This is in turn derived from the Fourier series. We will give a brief introduction to them. A thorough introduction from which the following subsections heavily draw can be found in cite:brunton2019data. The principal idea Fourier analysis follows is that it can project (1) functions - via Fourier Transform - and (2) data vectors - via Discrete Fourier Transform - into a coordinate system defined by orthogonal functions - sine and cosine. To get the exact representation of a function or a data vector it has be done in infinitely many dimensions. We introduce the Fast Fourier Transform by showing the equivalence of the inner norm and the integral of their product ([[sec:in_prod]]). From this we build the 2\pi-periodic Fourier Series ([[sec:f_series]]) and transfer it to a non-2\pi-periodic basis of length $L$ and develop it further to the non-periodic Fourier Transform ([[sec:ft]]). Next we make it applicable to discrete sets of data ([[sec:dft]]) via the Discrete Fourier Transform. Finally we introduce a computational trick that enables the dramatic time complexity reduction of the Fast Fourier Transform ([[sec:fft_detail]]). We close off this section by discussing the important properties that make the FFT scale invariant with respect to the length of the time series to which it is applied ([[sec:parseval_thm]]), explain the Power Spectrum ([[sec:pow_spec]]), the phenomenon of spectral leakage ([[sec:spec_leak]]) and which methods exist to address it ([[sec:wdw_f]] and [[sec:welch]]).
+ 
 *** Inner Product of Functions and their norms
+<<sec:in_prod>>
 To get to the properties of data under the Fourier transform we must start with the Hermitian inner product (cite:ratcliffe2006foundations) of functions in Hilbert spaces, $f(x)$ and $g(x)$ ($\compconj{g}$ denotes the complex conjugate of $g$) in the domain $x \in [a,b]$:
 #+BEGIN_EXPORT latex
 \begin{equation}
@@ -261,6 +260,7 @@ The norm of the inner product of the functions can also be expressed as integral
 The last required step is transferring the applicability from a finite-dimensional vector space to an infinite-dimensional vector space. For this we can use the Lebesgue integrable functions or square integrable functions $L^2([a,b])$. All functions with a bounded norm define the set of square-integrable functions cite:brunton2019data. Next we will show how a Fourier series is a projection of a function onto the orthogonal set of sine and cosine functions.
 
 *** Fourier Series
+<<sec:f_series>>
 As the name suggests the Fourier series is an infinite sum of sine and cosine functions of increasing frequency. The mapped function is assumed to be periodic. A simple case of $2\pi$-periodic can be shown as:
 #+begin_export latex
 \begin{equation}
@@ -346,6 +346,7 @@ f(x) = \sum_{k=-\infty}^{\infty} c_k \psi_k(x) = \frac{1}{2\pi} \sum_{k=-\infty}
 The factor $1/2\pi$ normalizes the projection by $\|\psi_k\|^2$.
 
 *** Fourier Transform
+<<sec:ft>>
 So far, the Fourier series can only be applied to periodic functions. This means that after the length of the interval the function repeats itself. With the Fourier transform an integral is defined in which the domain goes to infinity in the limit such that functions can be defined without repeating itself. So if we define a Fourier series and its coefficients as:
 #+begin_export latex
 \begin{equation}
@@ -381,7 +382,7 @@ f(x) = \mathcal{F}^{-1}(\hat{f}(\omega)) = \frac{1}{2\pi} \int_{-\infty}^{\infty
 #+end_export
 As long as $f(x)$ and $\hat{f}(\omega)$ belong to the Lebesgue integrable functions the integrals converge. In effect this means that functions have to tend to 0 as $L$ goes to infinity.
 *** Discrete Fourier Transform
-
+<<sec:dft>>
 In order to be able to apply the Fourier transform to time series a they need to be applicable to discrete data as well. The Discrete Fourier Transform (DFT) approximates the Fourier transform on discrete data $\textbf{f} = [f_1, f_2, \dots, f_n]^T$ where $f_j$ is regularly spaced.
 The discrete Fourier transform pair is defined as:
 #+begin_export latex
@@ -394,7 +395,7 @@ f_k = \frac{1}{n} \sum_{j=0}^{n-1}\hat{f}_j\euler^{i2\pi jk/n}.
 #+end_export
 Via the DFT $\textbf{f}$ is mapped into the frequency domain $\hat{\textbf{f}}$. As before the output in the resulting DFT matrix is complex valued, meaning that it can be (and is) heavily used for physical interpretations for example in engineering questions as well.
 *** Fast Fourier Transform
-
+<<sec:fft_detail>>
 So far we have shown that the Fourier Series and the Discrete Fourier Transform can provide an exact representation of any arbitrary function or data generating process without requiring any assumptions or parameter settings. In the time complexity however we are dealing with an implementation that has complexity $\mathcal{O}(n^2)$. As an example, let's consider the M4 data set, which will be introduced in section [[sec:m4_data]]. The longest series has $n=9919$ data points. Given the time complexity of the DFT this will include $\mathcal{O}(n^2)=9919^2=9.8 \times 10^8$ or about 1 billion operations. With the Fast Fourier Transform this can be reduced to a time complexity of $\mathcal{O}(n \log(n))$. In our example this results to $\mathcal{O}(9919 \log(9919)) = 1.3 \times 10^5$ or roughly 130,000 thousand operations. This is a improvement of factor 7,538. It is also an indication that when to time series it still provides very fast computation times.
 
 To be able to convert the DFT to the FFT a multiple of 2 data points is required. For example, take $n=2^6=64$. In this case the DFT matrix can be written as follows:
@@ -470,6 +471,7 @@ This is the magnitude of the particular frequency. In figure [[fig:fft_example]]
 <<sec:spec_leak>>
 The Fast Fourier Transform (FFT) assumes that the signal continues infinitely in time and that there no discontinuities. However, any signal in the real world, including time series has finite data points. If the time domain is an integer multiple of of the frequency $k$ than each records connects smoothly to the next. Real world processes generally do not follow sinusoidal wave forms and can contain significant amounts of noise, as well as phase changes and trends. So if the signal is not an integer multiple of the sampling frequency $k$ this signal leaks into the adjacent frequency bins. See figure [[fig:fft_example]] in the power spectrum plot around 10^1. Both on the left a likely example of spectral leakage can be observed. As we intend to use the ranked by energy level frequencies to look for similarities between time series this can be an issue as we want to avoid that the leaked frequencies are utilized for the determination of the most important frequencies. We will look at window functions to address this issue.
 *** Window Functions
+<<sec:wdw_f>>
 In the field of signal processing a lot of research has been conducted to combat the spectral leakage described in section [[sec:spec_leak]]. One way of addressing spectral leakage are window functions, also called tapering or apodization functions. They help reduce the undesired effects of spectral leakage. They have been used successfully in various areas of signal processing, like speech processing, digital filter design and spectrum estimation cite:kumar2011. Spectrum estimation is the field we will apply them here.
 
 The windows applied to data signals affect several properties of harmonic processors like the Fast Fourier Transform (FFT), like detectability, resolution, and others cite:harris1978. The window functions are designed such that in the spectral analysis they help reduce the side lobes next to the main beams of the spectral output of the Fast Fourier Transform (FFT). A side effect is that the main lobe broadens and thus the resolution is decreased cite:kumar2011. The spectral power in a particular bin contains leakage from neighboring bins. The window function brings the data  down to zero at the edges of the time series. An example applied to a series from the M4 data set can be seen in figure [[fig:ham_wdw]].
@@ -489,6 +491,7 @@ w(n) = 0.54 - 0.46 \cos \left( \frac{2\pi n}{M - 1}  \right) \quad
 with $M$ being the length of time series to be covered. As can be seen in the figure, it minimizes the sidelobes created by the FFT, but it also minimizes valid signal at the edge of the time series data.
 
 *** Bartlett's and Welch's Method
+<<sec:welch>>
 Another approach to address spectral leakage is to average periodograms generated over multiple subsets of the time series. Welch's method is based on Bartlett's method which is described in the following cite:bartlett1948. Let us denote the x^th periodogram or power spectrum as $\hat{P}$.
 The idea that the average of the computed periodograms is unbiased:
 #+begin_export latex
@@ -839,7 +842,7 @@ Where the results between the DTW and our approach differ are in the identificat
 
 A visual inspection of the results produced by the different windows and summary statistics (see [[sec:vis_res]]) shows that the overall performance of finding similar time series is good with intermittent mishaps. For example figure [[fig:chinatown283]] and figure [[fig:middlephalanxtw96]] are good examples of the capabilities of our proposed approach.
 
-Nonetheless, there are other examples were some summary statistics have good results but others produce bad results. See for example figure [[fig:shapesall188]]. The data analysis in section [[sec:data_properties]] showed the increase of frequencies at the low and high end. Possible remedies could be linear range setup that increase the compute time, or using classical clustering metrics like Euclidean distance of the ranked frequencies, or creating a range that is sensitive on the low and high boundaries of the frequency range. Another interesting observation are figures [[fig:facefour5]] and [[fig:mallat1407]]. Here the mechanism of the FFT becomes visible. One can observe that the general patterns of the wave form are matched but the exact place of their occurrence on the domain is not considered. And in the case of figure [[fig:facefour5]] one can also observe that the matched time series have higher frequencies that do not match the template series with smaller magnitude and hence lower rank where probably outside of the top k frequency matches and therefore not considered. This could be remedied by increasing k to a higher level.
+Nonetheless, there are other examples were some summary statistics have good results but others produce bad results. See for example figure [[fig:shapesall188]]. The data analysis in section [[sec:data_properties]] showed the increase of frequencies at the low and high end. Possible remedies could be linear range setup that increase the compute time, or using classical clustering metrics like Euclidean Distance of the ranked frequencies, or creating a range that is sensitive on the low and high boundaries of the frequency range. Another interesting observation are figures [[fig:facefour5]] and [[fig:mallat1407]]. Here the mechanism of the FFT becomes visible. One can observe that the general patterns of the wave form are matched but the exact place of their occurrence on the domain is not considered. And in the case of figure [[fig:facefour5]] one can also observe that the matched time series have higher frequencies that do not match the template series with smaller magnitude and hence lower rank where probably outside of the top k frequency matches and therefore not considered. This could be remedied by increasing k to a higher level.
 
 ** Match scores
 The first aspect that determines which time series from the pool are considered are the ranked matching scores per window type. The highest ranking scores are kept for each window type and the rest is discarded as described in [[sec:match_ts]]. For the surviving candidates the $\Delta$ of the summary statistics are computed and the ranking is applied. This is done separately as well for each window type. With this result we can review each summary statistic for smallest delta without regard for the window type and declare that resulting time series as the closest match for that particular metric. The distribution of the match scores is visible in figure [[fig:match_scores_dist]]. We observe that the results are are distributed for the most part around 10^4 and higher values. Also here we confirm once again that the Welch's method has the largest share of the top scores. It also has the smallest share of low results around the 10^3 score mark. The largest percentage of low scores is captured by the regular FFT, further underlying the effects of spectral leakage and the consequential mismatching of frequencies.
