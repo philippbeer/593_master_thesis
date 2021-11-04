@@ -67,10 +67,18 @@
 #+begin_export latex
 \begin{frontmatter}
 \begin{thesisabstract}
-This is abstract.
+In this thesis we present an algorithm suitable to be the foundation for a time series search engine that identifies similar time series from a pool of time series data. At its core it utilizes the Fast Fourier Transform (FFT) with the application of various apodization techniques. The comparison of time series in the frequency domain is based on intervals of increasing length for which we compute a matching score. This mechanism is augmented by additional statistical measures which allow for flexible selection of required characteristics to be considered similar to a template time series. 
+
+We show the properties, advantages and disadvantages of our algorithm on two popular time series data archives, namely the M4 competition data set and the UCR Time Series Classification Archive. Additionally, we formally evaluate our algorithm by comparing it to the results of the popular Dynamic Time Warping (DTW) mechanism on the UCR archive. Our algorithm outperforms Dynamic Time Warping by orders of magnitude but requires careful review on the proper selection of search criteria for a given search task.
 \end{thesisabstract}
 \begin{acknowledgements}
-These are the acknowledgments.
+Foremost I express my gratitude towards Prof. Dr. Ioannis Katakis for his continued guidance and support throughout the entire master program as well as the freedom he granted in the approach to this thesis. I am indebted for his suggestions and clarity of thought he provided me with.
+
+In a very similar fashion I thank my friend, colleague and business partner Dr. Piero Ferrarese for his unending support, thorough explanations of concepts unfamiliar to me and provision of clear and honest feedback on my work. Also, I am thankful to Stefano Ravagnan for his introduction to apodization functions and interest in the work of this thesis. To this list I also count Dr. Vangelis Spiliotis for his help in the creation of the thesis.
+
+Beyond this I am thankful to the faculty and staff of the Master of Science in Data Science program at the University of Nicosia. In particular I want to express my thanks to the following faculty for their exceptionally well organized courses as well as their continuous support: Dr. Spyros Makridakis, Dr. Nectarios Papanicolaou, Dr. Demetris Trihinas, Dr. Athena Stassopoulou, Dr. Ioannis Partalas and Dr. Thomas Liebig. You have taught me a lot.
+
+Most important to me I want to thank my family and in particular my wonderful wife Oli and my three monkeys Alek, Elon und Liev for their continued support, understanding and love throughout this program. Without you, none of this would be possible.
 \end{acknowledgements}
 \end{frontmatter}
 \cleardoublepage
@@ -911,7 +919,7 @@ The purpose of building a time series search engine that retrieves similar time 
 
 The downside of utilizing our algorithm are that in its current form there are side effects which need to be considered, like retrieving series that have repeating patterns that do match in quantity or location depending on the used window type.
 \appendix
-* Visualizations of results
+* Visualization of selected results
 <<sec:vis_res>>
 #+caption: Chinatown - 283
 #+name: fig:chinatown283
