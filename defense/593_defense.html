@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Time Series: Defining a Search Engine Algorithm</title>
+<meta name="author" content="(Philipp Beer)"/>
+<meta name="description" content="593 Master Thesis"/>
+<meta name="keywords" content="unic, 593, katakis"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.css"/>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/theme/blood.css" id="theme"/>
+
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'https://cdn.jsdelivr.net/npm/reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<style>
+.reveal table {
+    font-size: 0.6em;
+}
+
+.reveal p {
+    font-size: 0.8em;
+}
+</style>
+
+<style>
+#left {
+  left:-8.33%;
+  text-align: left;
+  float: left;
+  width:50%;
+  z-index:-10;
+}
+
+#right {
+  left:31.25%;
+  top: 75px;
+  float: right;
+  text-align: right;
+  z-index:-10;
+  width:50%;
+}
+</style>
+
+
+
+
+<section>
+<section id="slide-org43f97d5">
+<h2 id="org43f97d5">Time Series Clustering: A Review</h2>
+
+<div id="orga37dd1e" class="figure">
+<p><img src="https://philippbeer.github.io/unic/501_final_pres/img/unic_logo.png" alt="unic_logo.png" width="200px" />
+</p>
+</div>
+
+<p>
+Philipp Beer<br />
+Department of Computer Science, UNIC<br />
+Prof. Dr. Ioannis Katakis
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgb05d647">
+<h3 id="orgb05d647">Why you should listen to this talk</h3>
+<p>
+If you want to <b>utilize time series</b> to create <b>forecasts</b>,<br />
+<b>learn about their properties</b> or<br />
+<b>want to learn what is missing the research of time series clustering</b><br />
+(IMHO) you should listen to this talk.
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org18f8a2b">
+<h3 id="org18f8a2b">Note</h3>
+<p>
+no bothering with names or particular studies - read the review
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgbe912b4">
+<h3 id="orgbe912b4">Introduction</h3>
+<p>
+time series analysis is pervasive to many areas
+</p>
+
+</section>
+<section id="slide-orgbf6ff32">
+<h4 id="orgbf6ff32">Applications</h4>
+<p>
+forecasting,<br />
+reporting,<br />
+analytics
+</p>
+</section>
+<section id="slide-orgd918f4c">
+<h4 id="orgd918f4c">Fields</h4>
+<p>
+natural sciences,<br />
+engineering,<br />
+finance,<br />
+medicine,<br />
+robotics
+</p>
+</section>
+<section id="slide-org00232a2">
+<h4 id="org00232a2">Challenges in time series analysis</h4>
+<ul>
+<li data-fragment-index="1" class="fragment fade-in-then-out">utilization of time series is hard</li>
+<li data-fragment-index="2" class="fragment fade-in-then-out">countless properties to consider</li>
+<li data-fragment-index="3" class="fragment fade-in-then-out">oftentimes only limited set of historical data available</li>
+
+</ul>
+</section>
+<section id="slide-org39cedef">
+<h4 id="org39cedef">Focus of this review</h4>
+<ol>
+<li class="fragment fade-in-then-semi-out">Definition  of terms clustering, time series and similarity measures</li>
+<li class="fragment fade-in-then-semi-out">Properties to cluster by</li>
+<li class="fragment fade-in-then-semi-out">Distance metrics categories</li>
+<li class="fragment fade-in-then-semi-out">Clustering algorithms categories</li>
+<li class="fragment fade-in-then-semi-out">Assessment</li>
+<li class="fragment fade-in-then-semi-out">Limitations</li>
+<li class="fragment fade-in-then-semi-out">Conclusion</li>
+
+</ol>
+
+</section>
+</section>
+<section>
+<section id="slide-org831179c">
+<h3 id="org831179c">Definitions</h3>
+<div class="outline-text-3" id="text-org831179c">
+</div>
+</section>
+<section id="slide-org6ab55a3">
+<h4 id="org6ab55a3">Clustering</h4>
+<div id="left">
+
+<div id="orgea2bb57" class="figure">
+<p><img src="https://philippbeer.github.io/unic/501_final_pres/img/xray_vision.jpg" alt="xray_vision.jpg" class="fragment grow" />
+</p>
+<p><span class="figure-number">Figure 1: </span>1979 - The Health Education Council DC Comics</p>
+</div>
+</div>
+<div id="right">
+<ul>
+<li class="fragment fade-in-then-semi-out"><b>unsupervised</b> learning technique</li>
+<li class="fragment fade-in-then-semi-out">reveal patterns useful for exploitations</li>
+<li class="fragment fade-in-then-semi-out">segmentation, grouping, distinction of elements into groups</li>
+
+</ul>
+</div>
+</section>
+<section id="slide-orgc9a34a5">
+<h4 id="orgc9a34a5">Time series</h4>
+<p class="fragment fade-in-then-semi-out">
+<b>sequence composed by a series of continuous, real-valued elements</b>
+</p>
+
+<ul>
+<li class="fragment fade-in-then-out">share the same challenges as high dimensional data</li>
+<li class="fragment fade-in-then-out">"curse of dimensionality"</li>
+<li class="fragment fade-in-then-out">quickly requires high computational power to process</li>
+
+</ul>
+
+</section>
+<section id="slide-org92e30b2">
+<h4 id="org92e30b2">Similarity measure in time series</h4>
+<ul>
+<li class="fragment fade-in">measure of how similar series are</li>
+<li class="fragment fade-in">usually computed pair-wise</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org9486b59">
+<h3 id="org9486b59">Clustering time series by</h3>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Shape-based</th>
+<th scope="col" class="org-left">Feature-based</th>
+<th scope="col" class="org-left">Model-based</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><img src="https://philippbeer.github.io/unic/501_final_pres/img/shape_based_clustering.png" alt="shape_based_clustering.png" /></td>
+<td class="org-left"><img src="https://philippbeer.github.io/unic/501_final_pres/img/feature_based_clustering.png" alt="feature_based_clustering.png" /></td>
+<td class="org-left">transform raw ts to model parameters</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+</section>
+<section>
+<section id="slide-org09fa4cf">
+<h3 id="org09fa4cf">Distance metrics</h3>
+<ul>
+<li>cornerstone of the clustering algorithm</li>
+<li>categories: <b>stable</b> and <b>approximate</b></li>
+
+</ul>
+</section>
+<section id="slide-org40cb605">
+<h4 id="org40cb605">Stable distance metrics</h4>
+<p>
+Euclidean distance
+  \[ d(p,q) = \sqrt{\sum_{k=1}^n (p_k - q_k)^2} \]
+</p>
+<ul>
+<li>raw time series requires same length</li>
+<li>no large outliers</li>
+<li>limited noise</li>
+
+</ul>
+<aside class="notes">
+<ul>
+<li>Euclidean distance (ED) is very sensitive to unique features (outliers, noise)</li>
+<li>ED requires same length time series</li>
+
+</ul>
+
+</aside>
+</section>
+<section id="slide-orga28dc60">
+<h4 id="orga28dc60">approximate metrics</h4>
+
+<div id="orgd27cfe0" class="figure">
+<p><img src="https://philippbeer.github.io/unic/501_final_pres/img/dtw_metric.png" alt="dtw_metric.png" width="500px" />
+</p>
+</div>
+<ul>
+<li>can handle different length time series</li>
+<li>Dynamic Time Warping (DTW)</li>
+
+</ul>
+<aside class="notes">
+<ul>
+<li>other metrics address part of these issues (e.g. DTW)</li>
+<li>other methods introduce other issues (DTW - warping around local extremes)</li>
+<li>complex methods often require parameters that can heavily impact performance (e.g. warping window)</li>
+<li>more eloquent methods introduce high computational costs</li>
+
+</ul>
+
+</aside>
+
+</section>
+<section id="slide-org6d71b4f">
+<h4 id="org6d71b4f">Current state of research</h4>
+<ul>
+<li>aim: identify new metrics or improve upon existing</li>
+<li><b>missing framework</b> how to choose these metrics</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org31e1b75">
+<h3 id="org31e1b75">Clustering Algorithms I</h3>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Partional</th>
+<th scope="col" class="org-left">Hierarchical</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><img src="https://philippbeer.github.io/unic/501_final_pres/img/partional.png" alt="partional.png" /></td>
+<td class="org-left"><img src="https://philippbeer.github.io/unic/501_final_pres/img/dendogram.png" alt="dendogram.png" /></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<ul>
+<li>grouping unlabeled data in groups</li>
+<li>input parameter: <b>k</b></li>
+<li>distinguished into crisp and fuzzy</li>
+
+</ul>
+
+</aside>
+
+</section>
+</section>
+<section>
+<section id="slide-orge0da8cc">
+<h3 id="orge0da8cc">Clustering Algorithms II</h3>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Density-Based</th>
+<th scope="col" class="org-left">Grid-based</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><img src="https://philippbeer.github.io/unic/501_final_pres/img/dbscan.png" alt="dbscan.png" /></td>
+<td class="org-left"><img src="https://philippbeer.github.io/unic/501_final_pres/img/grid_based.png" alt="grid_based.png" /></td>
+</tr>
+</tbody>
+</table>
+
+
+
+</section>
+</section>
+<section>
+<section id="slide-org5b4b84a">
+<h3 id="org5b4b84a">Partional</h3>
+<div class="outline-text-3" id="text-org5b4b84a">
+</div>
+</section>
+<section id="slide-org1471a0c">
+<h4 id="org1471a0c">Advantages</h4>
+<ul>
+<li>easy to understand and implement</li>
+<li>utilizable with different distance metrics</li>
+
+</ul>
+
+</section>
+<section id="slide-orgb5d4f3b">
+<h4 id="orgb5d4f3b">Challenges</h4>
+<ul>
+<li>limited to globular shapes</li>
+<li>easily impacted by noise and outliers</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org5ebf76f">
+<h3 id="org5ebf76f">Hierarchical</h3>
+<aside class="notes">
+<ul>
+<li>bottom-up and top-down approaches</li>
+<li>distance measure: single-, average-, complete-link</li>
+
+</ul>
+
+</aside>
+</section>
+<section id="slide-orge1b9ba6">
+<h4 id="orge1b9ba6">Advantages</h4>
+<ul>
+<li>visual analysis</li>
+<li>no predetermination of k required</li>
+
+</ul>
+
+</section>
+<section id="slide-orgeaa7c57">
+<h4 id="orgeaa7c57">Challenges</h4>
+<ul>
+<li>no adjustments after decision about an element made</li>
+<li>computational complexity: \[ \mathcal{O}(N^2) \]</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orga0c40b3">
+<h3 id="orga0c40b3">Density-based methods</h3>
+<aside class="notes">
+<ul>
+<li>DBSCAN - two parameters (neighbourhood and minimum for points)</li>
+
+</ul>
+
+</aside>
+</section>
+<section id="slide-org77f96c6">
+<h4 id="org77f96c6">Advantages</h4>
+<ul>
+<li><b>handles non-globular shapes</b></li>
+<li><b>quick</b> execution speed</li>
+<li>is capable of <b>identifying noise and outliers</b></li>
+<li>applicable to a wide variety of data sets</li>
+
+</ul>
+
+</section>
+<section id="slide-orgba6ea94">
+<h4 id="orgba6ea94">Challenges</h4>
+<ul>
+<li>correct setup of parameters requires higher understanding of the data</li>
+<li><b>varying cluster densities</b> create a challenge</li>
+<li>not often applied in time series due to this complexity</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-orgd541cd6">
+<h3 id="orgd541cd6">Grid-based methods</h3>
+<aside class="notes">
+<ul>
+<li>quantizing the feature space into hyper-rectangles (cells)</li>
+<li>for each range of those intervals the respective metrics are computed</li>
+
+</ul>
+
+</aside>
+</section>
+<section id="slide-orgb077c1a">
+<h4 id="orgb077c1a">Advantages</h4>
+<ul>
+<li>single pass computation \[ \mathcal{O}(N) \]</li>
+<li>very fast query impacted only by number of grids (k): \[ \mathcal{O}(k) \]</li>
+
+</ul>
+
+</section>
+<section id="slide-orgbff4094">
+<h4 id="orgbff4094">Challenges</h4>
+<ul>
+<li><b>NO</b> relationship between the grids</li>
+<li>interval range is a manual parameter</li>
+<li><b>Research Question</b>: Can these ranges be inferred from the data?</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org45c322f">
+<h3 id="org45c322f">Assessment metrics</h3>
+<div class="outline-text-3" id="text-org45c322f">
+</div>
+</section>
+<section id="slide-org24a3697">
+<h4 id="org24a3697">General points</h4>
+<ul>
+<li>trickiest part of the process</li>
+<li>metrics are separated into <b>external</b> and <b>internal</b> metrics</li>
+
+</ul>
+</section>
+<section id="slide-org856cafc">
+<h4 id="org856cafc">External indexes</h4>
+<ul>
+<li>matches found clusters against an outside "truth"</li>
+<li>F-measure, Jaccard, entropy, &#x2026;</li>
+
+</ul>
+</section>
+<section id="slide-org7545db8">
+<h4 id="org7545db8">Internal indexes</h4>
+<ul>
+<li>measure of goodness of cluster structure</li>
+<li>Sum of Squared Errors, Silhouette Score, &#x2026;</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-org80513d4">
+<h3 id="org80513d4">Limitations</h3>
+<div class="outline-text-3" id="text-org80513d4">
+</div>
+</section>
+<section id="slide-org59b5546">
+<h4 id="org59b5546">General</h4>
+<ul>
+<li>clustering algorithms do not perform well with time series</li>
+<li><b>dimensionality</b>, <b>noise</b> are problematic</li>
+<li>dimensionality reduction inherently brings <b>information loss</b></li>
+
+</ul>
+<aside class="notes">
+<ul>
+<li>implementations usually contain experimental flaws (data and implementation bias)</li>
+<li>limits the generalizability of study results to real-world problems</li>
+
+</ul>
+
+</aside>
+</section>
+<section id="slide-org9e6fb74">
+<h4 id="org9e6fb74">Simlarity metrics</h4>
+<ul>
+<li><b>missing framework</b> to choose appropriate distance metric</li>
+<li>choice between generally sensitive or computationally expensive metrics</li>
+
+</ul>
+
+</section>
+<section id="slide-org0e44d0e">
+<h4 id="org0e44d0e">Algorithms</h4>
+<ul>
+<li>having to define parameters</li>
+<li>at the price of <b>complexity</b> other algorithms address this topic</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgb2b12eb">
+<h3 id="orgb2b12eb">Conclusions and things you should remember</h3>
+<div class="outline-text-3" id="text-orgb2b12eb">
+</div>
+</section>
+<section id="slide-org7e6736a">
+<h4 id="org7e6736a">Researching towards more complexity</h4>
+<p>
+may not serve the goals of finding meaningful algorithms
+</p>
+</section>
+<section id="slide-org31e86fa">
+<h4 id="org31e86fa">Our proposal</h4>
+<ul>
+<li>focus research efforts more on finding fundamental truths about this process</li>
+<li>when to use/avoid certain metrics or algorithms</li>
+<li>may improve general understanding</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org1a5e81e">
+<h3 id="org1a5e81e">Thank you. Which questions do you have?</h3>
+<p>
+<a href="https://philippbeer.github.io/unic/501_final_pres/501_ts_c_rev.pdf">(Details and the analyzed papers can be found in the literature review)</a>
+</p>
+</section>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+{src: './org-reveal-animate.js/'},
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'https://cdn.jsdelivr.net/npm/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+
+});
+
+</script>
+</body>
+</html>

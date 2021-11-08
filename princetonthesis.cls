@@ -384,11 +384,11 @@
 		{\Large\pu@author}
 	\vskip 3em
 	\large\baselineskip 2em
-		A Dissertation\\
-		Presented to the Faculty\\
-		of University of Nicosia\\
-		in Candidacy for the Degree\\
-		of Master of Science\\
+        A Thesis Submitted in\\
+        Partial Fulfillment of the\\
+        Requirements for the\\
+        Degree of Master of Science\\
+        at the University of Nicosia
 	\vskip 2em
 		Recommended for Acceptance\\
 		by the Department of\\
