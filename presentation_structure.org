@@ -1,0 +1,7 @@
+* Thesis Defense
+** Motivation
+- what business case get's solved
+** Methodology Overview
+** Data Analysis
+** Evaluation
+** DiscussION
