@@ -34,7 +34,7 @@
 #+LATEX_HEADER: \newcolumntype{C}[1]{>{\centering}m{#1}}
 #+LATEX_HEADER: \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 
-#+LATEX_HEADER: \title{Time series: Defining a search engine algorithm}
+#+LATEX_HEADER: \title{Efficient Algorithms for Time Series Retrieval}
 #+LATEX_HEADER: \advisor{Dr. Ioannis Katakis}
 #+LATEX_HEADER: \department{Computer Science}
 #+LATEX_HEADER: \degreemonth{February}
