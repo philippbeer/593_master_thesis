@@ -20,7 +20,6 @@
 #+LATEX_HEADER: \usepackage{float}
 #+LATEX_HEADER: \usepackage{pgfplots}
 
-
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \DeclareMathOperator*{\argmin}{arg\,min}
 #+LATEX_HEADER: \DeclareMathOperator*{\argmax}{arg\,max}
@@ -66,6 +65,32 @@
 \pgfplotsset{compat=1.17}
 #+begin_export latex
 \begin{frontmatter}
+\begin{center}
+\doublespacing
+{\huge \textbf{APPROVAL PAGE} \par}
+Master of Science Thesis \par
+{\fontsize{20}{30}\selectfont Efficient Algorithms for Time Series Retrieval \par}
+Presented by \par
+Philipp Beer \par
+\end{center}
+\vspace{2cm}
+\begin{table}[bh]
+\begin{tabular}{lc}
+\makebox[2.5in]{Research Supervisor} & \makebox[2.5in]{\hrulefill}\\
+ & Professor Ioannis Katakis\\[8ex]% adds space between the two sets of signatures
+\makebox[2.5in]{Committee Member} & \makebox[2.5in]{\hrulefill}\\
+ & Professor Spyros Makridakis\\[8ex]
+\makebox[2.5in]{Committee Member} & \makebox[2.5in]{\hrulefill}\\
+ & Professor Theodoros Moysiadis\\ [8ex]
+\end{tabular}
+\end{table}
+\begin{center}
+University of Nicosia \par
+May, 2022
+\end{center}
+
+
+
 \begin{thesisabstract}
 In this thesis we present an algorithm suitable to be the foundation for a time series search engine that identifies similar time series from a pool of time series data. At its core it utilizes the Fast Fourier Transform (FFT) with the application of multiple apodization techniques. The comparison of time series in the frequency domain is based on intervals of increasing length for which we compute a matching score. This mechanism is augmented by additional statistical measures which allow for flexible selection of required characteristics to be considered similar to a template time series. 
 
